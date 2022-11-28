@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>897248157130-7vvfn0ac0q7l94kmu5rui1e01eecpku7.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.897248157130-7vvfn0ac0q7l94kmu5rui1e01eecpku7</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>897248157130-97jvrmt80gs9ag8sfuqrrcpruq34obak.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDPH7H3MdDmDViMha19iK9ehcCnK0HHdOg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>897248157130</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.hoca.whichmoment</string>
+	<key>PROJECT_ID</key>
+	<string>whichmoment-38889</string>
+	<key>STORAGE_BUCKET</key>
+	<string>whichmoment-38889.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:897248157130:ios:ee70d5f3600ea88cac0333</string>
+	<key>DATABASE_URL</key>
+	<string>https://whichmoment-38889-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

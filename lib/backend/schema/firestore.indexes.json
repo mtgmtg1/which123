@@ -1,0 +1,64 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Post1",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ref",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createTime",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "price",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "personref",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "procash",
+      "fieldPath": "created_at",
+      "indexes": [
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "personcash",
+      "fieldPath": "procashref",
+      "indexes": [
+        {
+          "order": "ASCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "notification",
+      "fieldPath": "time_posted",
+      "indexes": [
+        {
+          "order": "DESCENDING",
+          "queryScope": "COLLECTION_GROUP"
+        }
+      ]
+    }
+  ]
+}
