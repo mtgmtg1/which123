@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class WellbeinginfoWidget extends StatefulWidget {
@@ -27,6 +28,7 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
   List<CompanyRecord> simpleSearchResults = [];
   TextEditingController? textController;
   String? dropDownValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -36,7 +38,9 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
     super.initState();
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() => FFAppState().searchdone = false);
+      FFAppState().update(() {
+        FFAppState().searchdone = false;
+      });
     });
 
     if (!isWeb) {
@@ -54,6 +58,7 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -63,6 +68,8 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       drawer: Drawer(
@@ -70,7 +77,7 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             SingleChildScrollView(
@@ -261,8 +268,9 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
                                                   .whenComplete(
                                                       () => setState(() {}));
 
-                                              setState(() => FFAppState()
-                                                  .searchdone = true);
+                                              FFAppState().update(() {
+                                                FFAppState().searchdone = true;
+                                              });
                                             },
                                           ),
                                           obscureText: false,
@@ -345,10 +353,12 @@ class _WellbeinginfoWidgetState extends State<WellbeinginfoWidget> {
                                                                   setState(
                                                                       () {}));
 
-                                                          setState(() =>
-                                                              FFAppState()
-                                                                      .searchdone =
-                                                                  true);
+                                                          FFAppState()
+                                                              .update(() {
+                                                            FFAppState()
+                                                                    .searchdone =
+                                                                true;
+                                                          });
                                                           setState(() {});
                                                         },
                                                         child: Icon(

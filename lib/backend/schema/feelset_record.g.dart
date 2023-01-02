@@ -47,6 +47,13 @@ class _$FeelsetRecordSerializer implements StructuredSerializer<FeelsetRecord> {
         ..add('day')
         ..add(serializers.serialize(value, specifiedType: const FullType(int)));
     }
+    value = object.stringfeel;
+    if (value != null) {
+      result
+        ..add('stringfeel')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(String)));
+    }
     value = object.ffRef;
     if (value != null) {
       result
@@ -88,6 +95,10 @@ class _$FeelsetRecordSerializer implements StructuredSerializer<FeelsetRecord> {
           result.day = serializers.deserialize(value,
               specifiedType: const FullType(int)) as int?;
           break;
+        case 'stringfeel':
+          result.stringfeel = serializers.deserialize(value,
+              specifiedType: const FullType(String)) as String?;
+          break;
         case 'Document__Reference__Field':
           result.ffRef = serializers.deserialize(value,
               specifiedType: const FullType(DocumentReference, const [
@@ -111,13 +122,20 @@ class _$FeelsetRecord extends FeelsetRecord {
   @override
   final int? day;
   @override
+  final String? stringfeel;
+  @override
   final DocumentReference<Object?>? ffRef;
 
   factory _$FeelsetRecord([void Function(FeelsetRecordBuilder)? updates]) =>
       (new FeelsetRecordBuilder()..update(updates))._build();
 
   _$FeelsetRecord._(
-      {this.feel, this.createat, this.userref, this.day, this.ffRef})
+      {this.feel,
+      this.createat,
+      this.userref,
+      this.day,
+      this.stringfeel,
+      this.ffRef})
       : super._();
 
   @override
@@ -135,6 +153,7 @@ class _$FeelsetRecord extends FeelsetRecord {
         createat == other.createat &&
         userref == other.userref &&
         day == other.day &&
+        stringfeel == other.stringfeel &&
         ffRef == other.ffRef;
   }
 
@@ -142,9 +161,11 @@ class _$FeelsetRecord extends FeelsetRecord {
   int get hashCode {
     return $jf($jc(
         $jc(
-            $jc($jc($jc(0, feel.hashCode), createat.hashCode),
-                userref.hashCode),
-            day.hashCode),
+            $jc(
+                $jc($jc($jc(0, feel.hashCode), createat.hashCode),
+                    userref.hashCode),
+                day.hashCode),
+            stringfeel.hashCode),
         ffRef.hashCode));
   }
 
@@ -155,6 +176,7 @@ class _$FeelsetRecord extends FeelsetRecord {
           ..add('createat', createat)
           ..add('userref', userref)
           ..add('day', day)
+          ..add('stringfeel', stringfeel)
           ..add('ffRef', ffRef))
         .toString();
   }
@@ -180,6 +202,10 @@ class FeelsetRecordBuilder
   int? get day => _$this._day;
   set day(int? day) => _$this._day = day;
 
+  String? _stringfeel;
+  String? get stringfeel => _$this._stringfeel;
+  set stringfeel(String? stringfeel) => _$this._stringfeel = stringfeel;
+
   DocumentReference<Object?>? _ffRef;
   DocumentReference<Object?>? get ffRef => _$this._ffRef;
   set ffRef(DocumentReference<Object?>? ffRef) => _$this._ffRef = ffRef;
@@ -195,6 +221,7 @@ class FeelsetRecordBuilder
       _createat = $v.createat;
       _userref = $v.userref;
       _day = $v.day;
+      _stringfeel = $v.stringfeel;
       _ffRef = $v.ffRef;
       _$v = null;
     }
@@ -222,6 +249,7 @@ class FeelsetRecordBuilder
             createat: createat,
             userref: userref,
             day: day,
+            stringfeel: stringfeel,
             ffRef: ffRef);
     replace(_$result);
     return _$result;

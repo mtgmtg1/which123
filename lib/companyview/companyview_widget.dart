@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CompanyviewWidget extends StatefulWidget {
   const CompanyviewWidget({
@@ -30,6 +31,7 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
   TextEditingController? placeController;
   TextEditingController? placedetailController;
   TextEditingController? kidsController;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -70,6 +72,10 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
+    if (!isWeb) {
+      _keyboardVisibilitySubscription.cancel();
+    }
     homepageController?.dispose();
     sizeController?.dispose();
     introduceController?.dispose();
@@ -78,14 +84,13 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
     placeController?.dispose();
     placedetailController?.dispose();
     kidsController?.dispose();
-    if (!isWeb) {
-      _keyboardVisibilitySubscription.cancel();
-    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -94,7 +99,7 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             Align(
@@ -186,6 +191,7 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
                                       MediaQuery.of(context).size.width * 0.5,
                                   constraints: BoxConstraints(
                                     maxWidth: 222,
+                                    maxHeight: 111,
                                   ),
                                   decoration: BoxDecoration(
                                     color: FlutterFlowTheme.of(context)
@@ -214,6 +220,8 @@ class _CompanyviewWidgetState extends State<CompanyviewWidget> {
                                               widget.companyref!.logo,
                                               'https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w480-h960-rw',
                                             ),
+                                            width: 222,
+                                            height: 111,
                                             fit: BoxFit.contain,
                                           ),
                                         ),

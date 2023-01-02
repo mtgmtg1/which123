@@ -1,6 +1,7 @@
 import '../auth/auth_util.dart';
 import '../backend/backend.dart';
 import '../backend/firebase_storage/storage.dart';
+import '../components/drawer_widget.dart';
 import '../components/menu_widget.dart';
 import '../components/navbar_widget.dart';
 import '../flutter_flow/flutter_flow_drop_down.dart';
@@ -14,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CreatePostWidget extends StatefulWidget {
   const CreatePostWidget({
@@ -38,6 +40,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
   TextEditingController? textFieldTitleController;
   TextEditingController? textFieldTextController;
   Post1Record? post;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -61,6 +64,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -71,11 +75,17 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+      drawer: Drawer(
+        elevation: 16,
+        child: DrawerWidget(),
+      ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             Align(
@@ -141,7 +151,7 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           2, 2, 2, 2),
                                       child: AuthUserStreamWidget(
-                                        child: Container(
+                                        builder: (context) => Container(
                                           width: 40,
                                           height: 40,
                                           clipBehavior: Clip.antiAlias,
@@ -259,12 +269,11 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                     hintText: '카테고리',
                                     fillColor: Colors.white,
                                     elevation: 2,
-                                    borderColor: Color(0xFFFFDE8F),
+                                    borderColor: Color(0x00FFDE8F),
                                     borderWidth: 2,
                                     borderRadius: 10,
                                     margin: EdgeInsetsDirectional.fromSTEB(
                                         12, 4, 12, 4),
-                                    hidesUnderline: true,
                                   ),
                                 ],
                               ),
@@ -281,9 +290,6 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                   color: FlutterFlowTheme.of(context)
                                       .secondaryBackground,
                                   borderRadius: BorderRadius.circular(11),
-                                  border: Border.all(
-                                    color: FlutterFlowTheme.of(context).sub2,
-                                  ),
                                 ),
                                 child: Padding(
                                   padding: EdgeInsetsDirectional.fromSTEB(
@@ -336,7 +342,6 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                         borderRadius: 0,
                                         margin: EdgeInsetsDirectional.fromSTEB(
                                             12, 4, 12, 4),
-                                        hidesUnderline: true,
                                       ),
                                     ],
                                   ),
@@ -361,10 +366,6 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                       ),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(11),
-                                        border: Border.all(
-                                          color: FlutterFlowTheme.of(context)
-                                              .main1,
-                                        ),
                                       ),
                                       child: TextFormField(
                                         controller: textFieldTitleController,
@@ -373,7 +374,9 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                           hintText: '제목',
                                           enabledBorder: UnderlineInputBorder(
                                             borderSide: BorderSide(
-                                              color: Color(0x00000000),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .main2,
                                               width: 1,
                                             ),
                                             borderRadius:
@@ -384,7 +387,9 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                                           ),
                                           focusedBorder: UnderlineInputBorder(
                                             borderSide: BorderSide(
-                                              color: Color(0x00000000),
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .main2,
                                               width: 1,
                                             ),
                                             borderRadius:
@@ -553,80 +558,81 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(12, 24, 12, 12),
-                        child: Row(
+                        child: Column(
                           mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Padding(
                               padding:
-                                  EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsetsDirectional.fromSTEB(
-                                        0, 0, 12, 0),
-                                    child: FlutterFlowIconButton(
-                                      borderColor: Colors.transparent,
-                                      borderRadius: 30,
-                                      borderWidth: 1,
-                                      buttonSize: 60,
-                                      icon: Icon(
-                                        Icons.add_photo_alternate_outlined,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryColor,
-                                        size: 32,
-                                      ),
-                                      onPressed: () async {
-                                        final selectedMedia =
-                                            await selectMediaWithSourceBottomSheet(
-                                          context: context,
-                                          allowPhoto: true,
-                                        );
-                                        if (selectedMedia != null &&
-                                            selectedMedia.every((m) =>
-                                                validateFileFormat(
-                                                    m.storagePath, context))) {
-                                          setState(
-                                              () => isMediaUploading = true);
-                                          var downloadUrls = <String>[];
-                                          try {
-                                            showUploadMessage(
-                                              context,
-                                              'Uploading file...',
-                                              showLoading: true,
-                                            );
-                                            downloadUrls = (await Future.wait(
-                                              selectedMedia.map(
-                                                (m) async => await uploadData(
-                                                    m.storagePath, m.bytes),
-                                              ),
-                                            ))
-                                                .where((u) => u != null)
-                                                .map((u) => u!)
-                                                .toList();
-                                          } finally {
-                                            ScaffoldMessenger.of(context)
-                                                .hideCurrentSnackBar();
-                                            isMediaUploading = false;
-                                          }
-                                          if (downloadUrls.length ==
-                                              selectedMedia.length) {
-                                            setState(() => uploadedFileUrl =
-                                                downloadUrls.first);
-                                            showUploadMessage(
-                                                context, 'Success!');
-                                          } else {
-                                            setState(() {});
-                                            showUploadMessage(context,
-                                                'Failed to upload media');
-                                            return;
-                                          }
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 12, 0),
+                              child: FlutterFlowIconButton(
+                                borderColor: Colors.transparent,
+                                borderRadius: 30,
+                                borderWidth: 1,
+                                buttonSize: 60,
+                                icon: Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  color:
+                                      FlutterFlowTheme.of(context).primaryColor,
+                                  size: 32,
+                                ),
+                                onPressed: () async {
+                                  final selectedMedia =
+                                      await selectMediaWithSourceBottomSheet(
+                                    context: context,
+                                    allowPhoto: true,
+                                  );
+                                  if (selectedMedia != null &&
+                                      selectedMedia.every((m) =>
+                                          validateFileFormat(
+                                              m.storagePath, context))) {
+                                    setState(() => isMediaUploading = true);
+                                    var downloadUrls = <String>[];
+                                    try {
+                                      showUploadMessage(
+                                        context,
+                                        'Uploading file...',
+                                        showLoading: true,
+                                      );
+                                      downloadUrls = (await Future.wait(
+                                        selectedMedia.map(
+                                          (m) async => await uploadData(
+                                              m.storagePath, m.bytes),
+                                        ),
+                                      ))
+                                          .where((u) => u != null)
+                                          .map((u) => u!)
+                                          .toList();
+                                    } finally {
+                                      ScaffoldMessenger.of(context)
+                                          .hideCurrentSnackBar();
+                                      isMediaUploading = false;
+                                    }
+                                    if (downloadUrls.length ==
+                                        selectedMedia.length) {
+                                      setState(() =>
+                                          uploadedFileUrl = downloadUrls.first);
+                                      showUploadMessage(context, 'Success!');
+                                    } else {
+                                      setState(() {});
+                                      showUploadMessage(
+                                          context, 'Failed to upload media');
+                                      return;
+                                    }
+                                  }
+
+                                  FFAppState().update(() {
+                                    FFAppState().imageref = uploadedFileUrl;
+                                  });
+                                },
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(11),
+                              child: Image.network(
+                                FFAppState().imageref,
+                                width: 222,
+                                height: 111,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ],
@@ -652,8 +658,9 @@ class _CreatePostWidgetState extends State<CreatePostWidget> {
                             await post1RecordReference.set(post1CreateData);
                             post = Post1Record.getDocumentFromData(
                                 post1CreateData, post1RecordReference);
-                            setState(
-                                () => FFAppState().postref = post!.reference);
+                            FFAppState().update(() {
+                              FFAppState().postref = post!.reference;
+                            });
 
                             context.pushNamed(
                               'postview',

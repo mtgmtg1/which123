@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProenrollWidget extends StatefulWidget {
   const ProenrollWidget({Key? key}) : super(key: key);
@@ -48,8 +49,9 @@ class _ProenrollWidgetState extends State<ProenrollWidget> {
   String uploadedFileUrl5 = '';
 
   TextEditingController? cert3Controller;
-  final formKey = GlobalKey<FormState>();
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey = GlobalKey<FormState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
 
@@ -78,6 +80,10 @@ class _ProenrollWidgetState extends State<ProenrollWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
+    if (!isWeb) {
+      _keyboardVisibilitySubscription.cancel();
+    }
     cert1Controller?.dispose();
     cert2Controller?.dispose();
     cert3Controller?.dispose();
@@ -87,18 +93,17 @@ class _ProenrollWidgetState extends State<ProenrollWidget> {
     userNameController?.dispose();
     introController?.dispose();
     phoneController?.dispose();
-    if (!isWeb) {
-      _keyboardVisibilitySubscription.cancel();
-    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             SingleChildScrollView(
@@ -120,7 +125,7 @@ class _ProenrollWidgetState extends State<ProenrollWidget> {
                       child: Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 66),
                         child: AuthUserStreamWidget(
-                          child: FutureBuilder<ProRecord>(
+                          builder: (context) => FutureBuilder<ProRecord>(
                             future: ProRecord.getDocumentOnce(
                                 currentUserDocument!.proref!),
                             builder: (context, snapshot) {

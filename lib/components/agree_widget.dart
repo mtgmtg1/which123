@@ -6,6 +6,7 @@ import '../flutter_flow/flutter_flow_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class AgreeWidget extends StatefulWidget {
   const AgreeWidget({
@@ -20,6 +21,7 @@ class AgreeWidget extends StatefulWidget {
 }
 
 class _AgreeWidgetState extends State<AgreeWidget> {
+  AgreeRecord? aas;
   bool? checkboxListTileValue1;
   bool? checkboxListTileValue2;
   bool? checkboxListTileValue3;
@@ -33,6 +35,8 @@ class _AgreeWidgetState extends State<AgreeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Align(
       alignment: AlignmentDirectional(0, 0),
       child: Padding(
@@ -145,6 +149,32 @@ class _AgreeWidgetState extends State<AgreeWidget> {
                             controlAffinity: ListTileControlAffinity.trailing,
                           ),
                         ),
+                        FFButtonWidget(
+                          onPressed: () async {
+                            await launchURL('https://informations.hoca.app');
+                          },
+                          text: '원문보기',
+                          options: FFButtonOptions(
+                            width: 130,
+                            height: 40,
+                            color: FlutterFlowTheme.of(context).primaryColor,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .subtitle2
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .subtitle2Family,
+                                  color: Colors.white,
+                                  useGoogleFonts: GoogleFonts.asMap()
+                                      .containsKey(FlutterFlowTheme.of(context)
+                                          .subtitle2Family),
+                                ),
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         Theme(
                           data: ThemeData(
                             unselectedWidgetColor: Color(0xFF95A1AC),
@@ -174,6 +204,32 @@ class _AgreeWidgetState extends State<AgreeWidget> {
                                 FlutterFlowTheme.of(context).primaryColor,
                             dense: false,
                             controlAffinity: ListTileControlAffinity.trailing,
+                          ),
+                        ),
+                        FFButtonWidget(
+                          onPressed: () async {
+                            await launchURL('https://informations.hoca.app');
+                          },
+                          text: '원문보기',
+                          options: FFButtonOptions(
+                            width: 130,
+                            height: 40,
+                            color: FlutterFlowTheme.of(context).primaryColor,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .subtitle2
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .subtitle2Family,
+                                  color: Colors.white,
+                                  useGoogleFonts: GoogleFonts.asMap()
+                                      .containsKey(FlutterFlowTheme.of(context)
+                                          .subtitle2Family),
+                                ),
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         Theme(
@@ -207,6 +263,32 @@ class _AgreeWidgetState extends State<AgreeWidget> {
                             controlAffinity: ListTileControlAffinity.trailing,
                           ),
                         ),
+                        FFButtonWidget(
+                          onPressed: () async {
+                            await launchURL('https://service.hoca.app');
+                          },
+                          text: '원문보기',
+                          options: FFButtonOptions(
+                            width: 130,
+                            height: 40,
+                            color: FlutterFlowTheme.of(context).primaryColor,
+                            textStyle: FlutterFlowTheme.of(context)
+                                .subtitle2
+                                .override(
+                                  fontFamily: FlutterFlowTheme.of(context)
+                                      .subtitle2Family,
+                                  color: Colors.white,
+                                  useGoogleFonts: GoogleFonts.asMap()
+                                      .containsKey(FlutterFlowTheme.of(context)
+                                          .subtitle2Family),
+                                ),
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 44),
                           child: FFButtonWidget(
@@ -217,10 +299,15 @@ class _AgreeWidgetState extends State<AgreeWidget> {
                                 company: checkboxListTileValue1,
                                 createdTime: getCurrentTimestamp,
                               );
-                              await AgreeRecord.createDoc(widget.person!)
-                                  .set(agreeCreateData);
+                              var agreeRecordReference =
+                                  AgreeRecord.createDoc(widget.person!);
+                              await agreeRecordReference.set(agreeCreateData);
+                              aas = AgreeRecord.getDocumentFromData(
+                                  agreeCreateData, agreeRecordReference);
 
-                              context.pushNamed('Home_page');
+                              context.goNamed('Home_page');
+
+                              setState(() {});
                             },
                             text: '확인',
                             options: FFButtonOptions(

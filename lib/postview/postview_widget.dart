@@ -10,8 +10,10 @@ import 'dart:async';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class PostviewWidget extends StatefulWidget {
   const PostviewWidget({
@@ -34,6 +36,7 @@ class _PostviewWidgetState extends State<PostviewWidget> {
   AfterSay1Record? postout4;
   TextEditingController? answerController;
   TextEditingController? textController1;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -41,6 +44,13 @@ class _PostviewWidgetState extends State<PostviewWidget> {
   @override
   void initState() {
     super.initState();
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      FFAppState().update(() {
+        FFAppState().postref = widget.post!.reference;
+      });
+    });
+
     if (!isWeb) {
       _keyboardVisibilitySubscription =
           KeyboardVisibilityController().onChange.listen((bool visible) {
@@ -57,16 +67,19 @@ class _PostviewWidgetState extends State<PostviewWidget> {
 
   @override
   void dispose() {
-    answerController?.dispose();
-    textController1?.dispose();
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
+    answerController?.dispose();
+    textController1?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return StreamBuilder<Post1Record>(
       stream: Post1Record.getDocument(widget.post!.reference),
       builder: (context, snapshot) {
@@ -91,7 +104,7 @@ class _PostviewWidgetState extends State<PostviewWidget> {
             child: DrawerWidget(),
           ),
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Stack(
               children: [
                 Align(
@@ -277,68 +290,6 @@ class _PostviewWidgetState extends State<PostviewWidget> {
                                                                               FlutterFlowTheme.of(context).bodyText1Family,
                                                                           fontWeight:
                                                                               FontWeight.normal,
-                                                                          useGoogleFonts:
-                                                                              GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        child: Material(
-                                                          color: Colors
-                                                              .transparent,
-                                                          elevation: 4,
-                                                          child: Container(
-                                                            width: 110,
-                                                            height: 55,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryBackground,
-                                                            ),
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .thumb_up,
-                                                                  color: Color(
-                                                                      0xFF70CAF0),
-                                                                  size: 20,
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          4,
-                                                                          0,
-                                                                          0,
-                                                                          0),
-                                                                  child: Text(
-                                                                    postviewPost1Record
-                                                                        .goodNum!
-                                                                        .toString(),
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyText1
-                                                                        .override(
-                                                                          fontFamily:
-                                                                              'Lexend Deca',
-                                                                          color:
-                                                                              Color(0xFF70CAF0),
-                                                                          fontSize:
-                                                                              14,
-                                                                          fontWeight:
-                                                                              FontWeight.w500,
                                                                           useGoogleFonts:
                                                                               GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
                                                                         ),
@@ -639,7 +590,7 @@ class _PostviewWidgetState extends State<PostviewWidget> {
                               ),
                               child: StreamBuilder<List<AfterSay1Record>>(
                                 stream: queryAfterSay1Record(
-                                  parent: widget.post!.reference,
+                                  parent: FFAppState().postref,
                                 ),
                                 builder: (context, snapshot) {
                                   // Customize what your widget looks like when it's loading.
@@ -677,13 +628,6 @@ class _PostviewWidgetState extends State<PostviewWidget> {
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  blurRadius: 3,
-                                                  color: Color(0x41000000),
-                                                  offset: Offset(0, 1),
-                                                )
-                                              ],
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                             ),
@@ -952,7 +896,7 @@ class _PostviewWidgetState extends State<PostviewWidget> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           AuthUserStreamWidget(
-                                            child: Container(
+                                            builder: (context) => Container(
                                               width: 50,
                                               height: 50,
                                               clipBehavior: Clip.antiAlias,

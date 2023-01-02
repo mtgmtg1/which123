@@ -11,6 +11,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class Company4NoticeWidget extends StatefulWidget {
@@ -24,6 +25,7 @@ class _Company4NoticeWidgetState extends State<Company4NoticeWidget> {
   List<Post1Record> simpleSearchResults = [];
   TextEditingController? textController;
   String? dropDownValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -46,6 +48,7 @@ class _Company4NoticeWidgetState extends State<Company4NoticeWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -55,6 +58,8 @@ class _Company4NoticeWidgetState extends State<Company4NoticeWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       drawer: Drawer(
@@ -62,7 +67,7 @@ class _Company4NoticeWidgetState extends State<Company4NoticeWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             SingleChildScrollView(

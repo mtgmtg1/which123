@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class BalanceHistoryWidget extends StatefulWidget {
   const BalanceHistoryWidget({
@@ -23,6 +24,7 @@ class BalanceHistoryWidget extends StatefulWidget {
 }
 
 class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -44,6 +46,7 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -52,6 +55,8 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return StreamBuilder<PersonRecord>(
       stream: PersonRecord.getDocument(currentUserReference!),
       builder: (context, snapshot) {
@@ -71,7 +76,7 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
         return Scaffold(
           key: scaffoldKey,
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Stack(
               children: [
                 SingleChildScrollView(
@@ -108,7 +113,7 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
                                       padding: EdgeInsetsDirectional.fromSTEB(
                                           2, 2, 2, 2),
                                       child: AuthUserStreamWidget(
-                                        child: Container(
+                                        builder: (context) => Container(
                                           width: 60,
                                           height: 60,
                                           clipBehavior: Clip.antiAlias,
@@ -143,7 +148,7 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         AuthUserStreamWidget(
-                                          child: Text(
+                                          builder: (context) => Text(
                                             currentUserDisplayName,
                                             style: FlutterFlowTheme.of(context)
                                                 .title3,
@@ -623,7 +628,7 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 11, 0, 55),
+                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 111),
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           constraints: BoxConstraints(
@@ -854,16 +859,6 @@ class _BalanceHistoryWidgetState extends State<BalanceHistoryWidget> {
                                                     ],
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            Container(
-                                              width: 100,
-                                              decoration: BoxDecoration(),
-                                              child: Text(
-                                                columnPriceRecord.status!,
-                                                style:
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyText1,
                                               ),
                                             ),
                                           ],

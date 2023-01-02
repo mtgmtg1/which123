@@ -3,6 +3,7 @@ import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfilebarWidget extends StatefulWidget {
   const ProfilebarWidget({Key? key}) : super(key: key);
@@ -21,6 +22,8 @@ class _ProfilebarWidgetState extends State<ProfilebarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Container(
       decoration: BoxDecoration(),
       child: Column(
@@ -36,7 +39,7 @@ class _ProfilebarWidgetState extends State<ProfilebarWidget> {
             child: Padding(
               padding: EdgeInsetsDirectional.fromSTEB(4, 4, 4, 4),
               child: AuthUserStreamWidget(
-                child: ClipRRect(
+                builder: (context) => ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: Image.network(
                     valueOrDefault<String>(
@@ -60,7 +63,7 @@ class _ProfilebarWidgetState extends State<ProfilebarWidget> {
                 Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
                   child: AuthUserStreamWidget(
-                    child: Text(
+                    builder: (context) => Text(
                       currentUserDisplayName,
                       style: FlutterFlowTheme.of(context).subtitle1,
                     ),

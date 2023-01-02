@@ -5,6 +5,7 @@ import '../flutter_flow/flutter_flow_widgets.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class MenuWidget extends StatefulWidget {
   const MenuWidget({
@@ -28,6 +29,8 @@ class _MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -46,11 +49,12 @@ class _MenuWidgetState extends State<MenuWidget> {
               ),
               alignment: AlignmentDirectional(0, 0),
               child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(11, 0, 0, 0),
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.07,
                       decoration: BoxDecoration(),
@@ -67,41 +71,29 @@ class _MenuWidgetState extends State<MenuWidget> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 11, 0),
-                      child: InkWell(
-                        onTap: () async {
-                          context.pushNamed('Home_page');
-                        },
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.23,
-                          constraints: BoxConstraints(
-                            maxWidth: 222,
-                          ),
-                          decoration: BoxDecoration(),
-                          child: Image.asset(
-                            'assets/images/KakaoTalk_20220706_120253230.png',
-                            fit: BoxFit.contain,
-                          ),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 11, 0),
+                    child: InkWell(
+                      onTap: () async {
+                        context.pushNamed('Home_page');
+                      },
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.33,
+                        constraints: BoxConstraints(
+                          maxWidth: 222,
+                        ),
+                        decoration: BoxDecoration(),
+                        child: Image.asset(
+                          'assets/images/KakaoTalk_20220706_120253230.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),
                   ),
-                  InkWell(
-                    onTap: () async {
-                      context.pushNamed('MyPage');
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FloatingWidget(),
-                        ],
-                      ),
-                    ),
+                  Container(
+                    width: 11,
+                    height: 11,
+                    decoration: BoxDecoration(),
                   ),
                 ],
               ),

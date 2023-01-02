@@ -1,5 +1,6 @@
 import '../auth/auth_util.dart';
 import '../backend/backend.dart';
+import '../components/bottommessage_widget.dart';
 import '../flutter_flow/flutter_flow_count_controller.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
@@ -8,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class FeelNumWidget extends StatefulWidget {
   const FeelNumWidget({Key? key}) : super(key: key);
@@ -30,11 +32,15 @@ class _FeelNumWidgetState extends State<FeelNumWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Padding(
       padding: EdgeInsetsDirectional.fromSTEB(5, 15, 5, 0),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(),
+        decoration: BoxDecoration(
+          color: FlutterFlowTheme.of(context).primaryBackground,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -99,15 +105,11 @@ class _FeelNumWidgetState extends State<FeelNumWidget> {
                   padding: EdgeInsetsDirectional.fromSTEB(11, 0, 0, 0),
                   child: FFButtonWidget(
                     onPressed: () async {
-                      setState(() =>
-                          FFAppState().feelmonthdaynumber = '${dateTimeFormat(
-                            'yMd',
-                            getCurrentTimestamp,
-                            locale: FFLocalizations.of(context).languageCode,
-                          )}/${countControllerValue.toString()}');
-
                       final feelsetCreateData = createFeelsetRecordData(
-                        feel: countControllerValue,
+                        feel: valueOrDefault<int>(
+                          countControllerValue,
+                          10,
+                        ),
                         createat: getCurrentTimestamp,
                         userref: currentUserReference,
                       );
@@ -116,26 +118,22 @@ class _FeelNumWidgetState extends State<FeelNumWidget> {
                       await feelsetRecordReference.set(feelsetCreateData);
                       feelset = FeelsetRecord.getDocumentFromData(
                           feelsetCreateData, feelsetRecordReference);
-                      await showDialog(
+                      showModalBottomSheet(
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        barrierColor:
+                            FlutterFlowTheme.of(context).primaryBackground,
                         context: context,
-                        builder: (alertDialogContext) {
-                          return AlertDialog(
-                            title: Text('감정점수 기록 완료'),
-                            content: Text('${dateTimeFormat(
-                              'Md',
-                              feelset!.createat,
-                              locale: FFLocalizations.of(context).languageCode,
-                            )}의 감정점수는 ${feelset!.feel?.toString()}점으로 기록되었습니다.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(alertDialogContext),
-                                child: Text('확인'),
-                              ),
-                            ],
+                        builder: (context) {
+                          return Padding(
+                            padding: MediaQuery.of(context).viewInsets,
+                            child: BottommessageWidget(
+                              title: '감정점수 기록완료',
+                              txt: '오늘의 감정점수가 기록되었습니다.',
+                            ),
                           );
                         },
-                      );
+                      ).then((value) => setState(() {}));
 
                       setState(() {});
                     },

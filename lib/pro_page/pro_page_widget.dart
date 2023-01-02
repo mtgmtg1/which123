@@ -14,6 +14,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class ProPageWidget extends StatefulWidget {
@@ -80,6 +81,7 @@ class _ProPageWidgetState extends State<ProPageWidget>
   Query? _pagingQuery;
   List<StreamSubscription?> _streamSubscriptions = [];
 
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -90,7 +92,9 @@ class _ProPageWidgetState extends State<ProPageWidget>
 
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() => FFAppState().searchdone = false);
+      FFAppState().update(() {
+        FFAppState().searchdone = false;
+      });
     });
 
     if (!isWeb) {
@@ -108,6 +112,7 @@ class _ProPageWidgetState extends State<ProPageWidget>
   @override
   void dispose() {
     _streamSubscriptions.forEach((s) => s?.cancel());
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -116,6 +121,8 @@ class _ProPageWidgetState extends State<ProPageWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return FutureBuilder<List<ProRecord>>(
       future: queryProRecordOnce(
         queryBuilder: (proRecord) =>
@@ -143,7 +150,7 @@ class _ProPageWidgetState extends State<ProPageWidget>
             child: DrawerWidget(),
           ),
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Stack(
               children: [
                 SingleChildScrollView(
@@ -229,8 +236,9 @@ class _ProPageWidgetState extends State<ProPageWidget>
                                       ],
                                       onChanged: (val) async {
                                         setState(() => dropDownValue = val);
-                                        setState(() =>
-                                            FFAppState().searchdone = true);
+                                        FFAppState().update(() {
+                                          FFAppState().searchdone = true;
+                                        });
                                         await queryProRecordOnce()
                                             .then(
                                               (records) => simpleSearchResults =
@@ -1117,12 +1125,12 @@ class _ProPageWidgetState extends State<ProPageWidget>
                                 );
                                 final streamSubscription =
                                     page.dataStream?.listen((data) {
-                                  final itemIndexes = _pagingController!
-                                      .itemList!
-                                      .asMap()
-                                      .map((k, v) =>
-                                          MapEntry(v.reference.id, k));
                                   data.forEach((item) {
+                                    final itemIndexes = _pagingController!
+                                        .itemList!
+                                        .asMap()
+                                        .map((k, v) =>
+                                            MapEntry(v.reference.id, k));
                                     final index =
                                         itemIndexes[item.reference.id];
                                     final items = _pagingController!.itemList!;

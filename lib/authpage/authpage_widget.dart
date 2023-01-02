@@ -5,10 +5,11 @@ import '../flutter_flow/flutter_flow_drop_down.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import '../flutter_flow/flutter_flow_widgets.dart';
-import 'package:easy_debounce/easy_debounce.dart';
+import '../custom_code/actions/index.dart' as actions;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class AuthpageWidget extends StatefulWidget {
   const AuthpageWidget({Key? key}) : super(key: key);
@@ -21,22 +22,22 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
   String? dropDownValue1;
   String? dropDownValue2;
   TextEditingController? emailAddressController;
+  TextEditingController? phoneController;
   TextEditingController? nameController;
   TextEditingController? nicknameController;
   TextEditingController? companyController;
   TextEditingController? birthController;
   TextEditingController? passwordController;
-
   late bool passwordVisibility;
   TextEditingController? passwordConfirmController;
-
   late bool passwordConfirmVisibility;
   TextEditingController? emailAddressLoginController;
   TextEditingController? passwordLoginController;
-
   late bool passwordLoginVisibility;
-  final formKey1 = GlobalKey<FormState>();
+  bool? kakao;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey1 = GlobalKey<FormState>();
   final formKey2 = GlobalKey<FormState>();
 
   @override
@@ -45,6 +46,7 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
     birthController = TextEditingController();
     companyController = TextEditingController();
     emailAddressController = TextEditingController();
+    phoneController = TextEditingController();
     nameController = TextEditingController();
     nicknameController = TextEditingController();
     passwordController = TextEditingController();
@@ -59,9 +61,11 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     birthController?.dispose();
     companyController?.dispose();
     emailAddressController?.dispose();
+    phoneController?.dispose();
     nameController?.dispose();
     nicknameController?.dispose();
     passwordController?.dispose();
@@ -73,10 +77,12 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height * 1,
@@ -434,7 +440,7 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       return '8자리 이상의 패스워드를 입력하세요.';
                                                     }
 
-                                                    if (!RegExp(r"")
+                                                    if (!RegExp('')
                                                         .hasMatch(val)) {
                                                       return 'Invalid text';
                                                     }
@@ -584,7 +590,8 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.max,
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.center,
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
                                                 children: [
                                                   InkWell(
                                                     onTap: () async {
@@ -624,6 +631,47 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                               0, 0),
                                                       child: FaIcon(
                                                         FontAwesomeIcons.google,
+                                                        color: FlutterFlowTheme
+                                                                .of(context)
+                                                            .primaryBackground,
+                                                        size: 24,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () async {
+                                                      kakao = await actions
+                                                          .kakaologin();
+
+                                                      context
+                                                          .goNamed('Home_page');
+
+                                                      setState(() {});
+                                                    },
+                                                    child: Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryText,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            blurRadius: 5,
+                                                            color: Color(
+                                                                0x3314181B),
+                                                            offset:
+                                                                Offset(0, 2),
+                                                          )
+                                                        ],
+                                                        shape: BoxShape.circle,
+                                                      ),
+                                                      alignment:
+                                                          AlignmentDirectional(
+                                                              0, 0),
+                                                      child: Icon(
+                                                        Icons.sort_by_alpha,
                                                         color: FlutterFlowTheme
                                                                 .of(context)
                                                             .primaryBackground,
@@ -696,7 +744,19 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       textStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .bodyText1,
+                                                              .bodyText1
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyText1Family,
+                                                                color: Color(
+                                                                    0x90101213),
+                                                                useGoogleFonts: GoogleFonts
+                                                                        .asMap()
+                                                                    .containsKey(
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyText1Family),
+                                                              ),
                                                       hintText: '회원구분을 선택하세요.',
                                                       fillColor: Colors.white,
                                                       elevation: 2,
@@ -754,7 +814,19 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       textStyle:
                                                           FlutterFlowTheme.of(
                                                                   context)
-                                                              .bodyText1,
+                                                              .bodyText1
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyText1Family,
+                                                                color: Color(
+                                                                    0xA257636C),
+                                                                useGoogleFonts: GoogleFonts
+                                                                        .asMap()
+                                                                    .containsKey(
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyText1Family),
+                                                              ),
                                                       hintText: '성별선택',
                                                       fillColor: Colors.white,
                                                       elevation: 2,
@@ -782,9 +854,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                 maxWidth: 444,
                                               ),
                                               decoration: BoxDecoration(
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryBackground,
                                                 borderRadius:
                                                     BorderRadius.circular(11),
                                               ),
@@ -801,15 +870,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       child: TextFormField(
                                                         controller:
                                                             emailAddressController,
-                                                        onChanged: (_) =>
-                                                            EasyDebounce
-                                                                .debounce(
-                                                          'emailAddressController',
-                                                          Duration(
-                                                              milliseconds:
-                                                                  2000),
-                                                          () => setState(() {}),
-                                                        ),
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
@@ -838,12 +898,11 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                             FlutterFlowTheme.of(context).bodyText1Family),
                                                                   ),
                                                           enabledBorder:
-                                                              UnderlineInputBorder(
+                                                              OutlineInputBorder(
                                                             borderSide:
                                                                 BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryText,
+                                                              color: Color(
+                                                                  0x00000000),
                                                               width: 1,
                                                             ),
                                                             borderRadius:
@@ -852,12 +911,11 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                         8),
                                                           ),
                                                           focusedBorder:
-                                                              UnderlineInputBorder(
+                                                              OutlineInputBorder(
                                                             borderSide:
                                                                 BorderSide(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryText,
+                                                              color: Color(
+                                                                  0x00000000),
                                                               width: 1,
                                                             ),
                                                             borderRadius:
@@ -866,7 +924,7 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                         8),
                                                           ),
                                                           errorBorder:
-                                                              UnderlineInputBorder(
+                                                              OutlineInputBorder(
                                                             borderSide:
                                                                 BorderSide(
                                                               color: Color(
@@ -879,7 +937,7 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                         8),
                                                           ),
                                                           focusedErrorBorder:
-                                                              UnderlineInputBorder(
+                                                              OutlineInputBorder(
                                                             borderSide:
                                                                 BorderSide(
                                                               color: Color(
@@ -901,29 +959,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                       11,
                                                                       11,
                                                                       11),
-                                                          suffixIcon:
-                                                              emailAddressController!
-                                                                      .text
-                                                                      .isNotEmpty
-                                                                  ? InkWell(
-                                                                      onTap:
-                                                                          () async {
-                                                                        emailAddressController
-                                                                            ?.clear();
-                                                                        setState(
-                                                                            () {});
-                                                                      },
-                                                                      child:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .clear,
-                                                                        color: Color(
-                                                                            0xFF757575),
-                                                                        size:
-                                                                            22,
-                                                                      ),
-                                                                    )
-                                                                  : null,
                                                         ),
                                                         style:
                                                             FlutterFlowTheme.of(
@@ -966,6 +1001,134 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       ),
                                                     ),
                                                   ),
+                                                  Container(
+                                                    width: 444,
+                                                    child: TextFormField(
+                                                      controller:
+                                                          phoneController,
+                                                      obscureText: false,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .subtitle2,
+                                                        hintText: '휴대폰 번호 입력',
+                                                        hintStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyText1
+                                                                .override(
+                                                                  fontFamily:
+                                                                      'Lexend Deca',
+                                                                  color: Color(
+                                                                      0xFF95A1AC),
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .normal,
+                                                                  useGoogleFonts: GoogleFonts
+                                                                          .asMap()
+                                                                      .containsKey(
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyText1Family),
+                                                                ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Color(
+                                                                0x00000000),
+                                                            width: 1,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Color(
+                                                                0x00000000),
+                                                            width: 1,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        errorBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Color(
+                                                                0x00000000),
+                                                            width: 1,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        focusedErrorBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Color(
+                                                                0x00000000),
+                                                            width: 1,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                        filled: true,
+                                                        fillColor: Colors.white,
+                                                        contentPadding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(11,
+                                                                    11, 11, 11),
+                                                      ),
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyText1
+                                                              .override(
+                                                                fontFamily:
+                                                                    'Lexend Deca',
+                                                                color: Color(
+                                                                    0xFF14181B),
+                                                                fontSize: 14,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .normal,
+                                                                useGoogleFonts: GoogleFonts
+                                                                        .asMap()
+                                                                    .containsKey(
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .bodyText1Family),
+                                                              ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      maxLines: null,
+                                                      keyboardType:
+                                                          TextInputType.phone,
+                                                      validator: (val) {
+                                                        if (val == null ||
+                                                            val.isEmpty) {
+                                                          return '필수입력 항목입니다.';
+                                                        }
+
+                                                        if (val.length < 8) {
+                                                          return '- 기호 없이 입력해주세요.';
+                                                        }
+                                                        if (val.length > 11) {
+                                                          return '전화번호 형식으로 입력해주세요.';
+                                                        }
+
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -978,12 +1141,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                               width: 444,
                                               child: TextFormField(
                                                 controller: nameController,
-                                                onChanged: (_) =>
-                                                    EasyDebounce.debounce(
-                                                  'nameController',
-                                                  Duration(milliseconds: 2000),
-                                                  () => setState(() {}),
-                                                ),
                                                 obscureText: false,
                                                 decoration: InputDecoration(
                                                   labelStyle:
@@ -1055,22 +1212,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       EdgeInsetsDirectional
                                                           .fromSTEB(
                                                               11, 11, 11, 11),
-                                                  suffixIcon: nameController!
-                                                          .text.isNotEmpty
-                                                      ? InkWell(
-                                                          onTap: () async {
-                                                            nameController
-                                                                ?.clear();
-                                                            setState(() {});
-                                                          },
-                                                          child: Icon(
-                                                            Icons.clear,
-                                                            color: Color(
-                                                                0xFF757575),
-                                                            size: 22,
-                                                          ),
-                                                        )
-                                                      : null,
                                                 ),
                                                 style: FlutterFlowTheme.of(
                                                         context)
@@ -1089,6 +1230,7 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                   .bodyText1Family),
                                                     ),
                                                 textAlign: TextAlign.center,
+                                                maxLines: null,
                                                 validator: (val) {
                                                   if (val == null ||
                                                       val.isEmpty) {
@@ -1108,12 +1250,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                             width: 444,
                                             child: TextFormField(
                                               controller: nicknameController,
-                                              onChanged: (_) =>
-                                                  EasyDebounce.debounce(
-                                                'nicknameController',
-                                                Duration(milliseconds: 2000),
-                                                () => setState(() {}),
-                                              ),
                                               obscureText: false,
                                               decoration: InputDecoration(
                                                 labelStyle:
@@ -1177,22 +1313,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                     EdgeInsetsDirectional
                                                         .fromSTEB(
                                                             11, 11, 11, 11),
-                                                suffixIcon: nicknameController!
-                                                        .text.isNotEmpty
-                                                    ? InkWell(
-                                                        onTap: () async {
-                                                          nicknameController
-                                                              ?.clear();
-                                                          setState(() {});
-                                                        },
-                                                        child: Icon(
-                                                          Icons.clear,
-                                                          color:
-                                                              Color(0xFF757575),
-                                                          size: 22,
-                                                        ),
-                                                      )
-                                                    : null,
                                               ),
                                               style: FlutterFlowTheme.of(
                                                       context)
@@ -1233,12 +1353,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                               width: 444,
                                               child: TextFormField(
                                                 controller: companyController,
-                                                onChanged: (_) =>
-                                                    EasyDebounce.debounce(
-                                                  'companyController',
-                                                  Duration(milliseconds: 2000),
-                                                  () => setState(() {}),
-                                                ),
                                                 obscureText: false,
                                                 decoration: InputDecoration(
                                                   labelStyle:
@@ -1310,22 +1424,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       EdgeInsetsDirectional
                                                           .fromSTEB(
                                                               11, 11, 11, 11),
-                                                  suffixIcon: companyController!
-                                                          .text.isNotEmpty
-                                                      ? InkWell(
-                                                          onTap: () async {
-                                                            companyController
-                                                                ?.clear();
-                                                            setState(() {});
-                                                          },
-                                                          child: Icon(
-                                                            Icons.clear,
-                                                            color: Color(
-                                                                0xFF757575),
-                                                            size: 22,
-                                                          ),
-                                                        )
-                                                      : null,
                                                 ),
                                                 style: FlutterFlowTheme.of(
                                                         context)
@@ -1344,6 +1442,18 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                                   .bodyText1Family),
                                                     ),
                                                 textAlign: TextAlign.center,
+                                                validator: (val) {
+                                                  if (val == null ||
+                                                      val.isEmpty) {
+                                                    return '필수 입력 항목입니다.';
+                                                  }
+
+                                                  if (val.length < 1) {
+                                                    return '필수 입력 항목입니다.';
+                                                  }
+
+                                                  return null;
+                                                },
                                               ),
                                             ),
                                           ),
@@ -1355,12 +1465,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                               width: 444,
                                               child: TextFormField(
                                                 controller: birthController,
-                                                onChanged: (_) =>
-                                                    EasyDebounce.debounce(
-                                                  'birthController',
-                                                  Duration(milliseconds: 2000),
-                                                  () => setState(() {}),
-                                                ),
                                                 obscureText: false,
                                                 decoration: InputDecoration(
                                                   labelText: '생년월일 8자리 입력',
@@ -1410,22 +1514,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       EdgeInsetsDirectional
                                                           .fromSTEB(
                                                               11, 11, 11, 11),
-                                                  suffixIcon: birthController!
-                                                          .text.isNotEmpty
-                                                      ? InkWell(
-                                                          onTap: () async {
-                                                            birthController
-                                                                ?.clear();
-                                                            setState(() {});
-                                                          },
-                                                          child: Icon(
-                                                            Icons.clear,
-                                                            color: Color(
-                                                                0xFF757575),
-                                                            size: 22,
-                                                          ),
-                                                        )
-                                                      : null,
                                                 ),
                                                 style: FlutterFlowTheme.of(
                                                         context)
@@ -1758,8 +1846,8 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                 final personCreateData =
                                                     createPersonRecordData(
                                                   company:
-                                                      birthController!.text,
-                                                  birth: int.parse(
+                                                      companyController!.text,
+                                                  birth: int.tryParse(
                                                       birthController!.text),
                                                   createdTime:
                                                       getCurrentTimestamp,
@@ -1902,7 +1990,11 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                       if (user == null) {
                                                         return;
                                                       }
-                                                      await showModalBottomSheet(
+
+                                                      context.goNamedAuth(
+                                                          'Home_page', mounted);
+
+                                                      showModalBottomSheet(
                                                         isScrollControlled:
                                                             true,
                                                         backgroundColor:
@@ -1928,9 +2020,6 @@ class _AuthpageWidgetState extends State<AuthpageWidget> {
                                                         },
                                                       ).then((value) =>
                                                           setState(() {}));
-
-                                                      context.pushNamedAuth(
-                                                          'MyPage', mounted);
                                                     },
                                                     child: Container(
                                                       width: 50,

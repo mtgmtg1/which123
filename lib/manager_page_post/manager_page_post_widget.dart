@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ManagerPagePostWidget extends StatefulWidget {
   const ManagerPagePostWidget({
@@ -24,6 +25,7 @@ class ManagerPagePostWidget extends StatefulWidget {
 }
 
 class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -34,7 +36,15 @@ class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
   }
 
   @override
+  void dispose() {
+    _unfocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Color(0xFFFAFCF4),
@@ -43,7 +53,7 @@ class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Padding(
           padding: EdgeInsetsDirectional.fromSTEB(0, 22, 0, 0),
           child: SingleChildScrollView(
@@ -712,7 +722,8 @@ class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
                                                       ),
                                                       child:
                                                           AuthUserStreamWidget(
-                                                        child: ClipRRect(
+                                                        builder: (context) =>
+                                                            ClipRRect(
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(16),
@@ -736,7 +747,7 @@ class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
                                         ),
                                       ),
                                       AuthUserStreamWidget(
-                                        child:
+                                        builder: (context) =>
                                             FutureBuilder<List<ProcashRecord>>(
                                           future: queryProcashRecordOnce(
                                             parent: currentUserDocument!.proref,
@@ -1161,7 +1172,7 @@ class _ManagerPagePostWidgetState extends State<ManagerPagePostWidget> {
                                                                                                     );
                                                                                                   }
                                                                                                   List<PersoncashRecord> textPersoncashRecordList = snapshot.data!;
-                                                                                                  // Return an empty Container when the document does not exist.
+                                                                                                  // Return an empty Container when the item does not exist.
                                                                                                   if (snapshot.data!.isEmpty) {
                                                                                                     return Container();
                                                                                                   }

@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:csv/csv.dart';
 import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/lat_lng.dart';
 
-class FFAppState {
+class FFAppState extends ChangeNotifier {
   static final FFAppState _instance = FFAppState._internal();
 
   factory FFAppState() {
@@ -31,16 +32,20 @@ class FFAppState {
         await secureStorage.getString('ff_feeldaycate') ?? _feeldaycate;
   }
 
+  void update(VoidCallback callback) {
+    callback();
+    notifyListeners();
+  }
+
   late FlutterSecureStorage secureStorage;
 
   DocumentReference? _postref;
   DocumentReference? get postref => _postref;
   set postref(DocumentReference? _value) {
-    if (_value == null) {
-      return;
-    }
     _postref = _value;
-    secureStorage.setString('ff_postref', _value.path);
+    _value != null
+        ? secureStorage.setString('ff_postref', _value.path)
+        : secureStorage.remove('ff_postref');
   }
 
   void deletePostref() {
@@ -61,11 +66,10 @@ class FFAppState {
   DocumentReference? _priceref;
   DocumentReference? get priceref => _priceref;
   set priceref(DocumentReference? _value) {
-    if (_value == null) {
-      return;
-    }
     _priceref = _value;
-    secureStorage.setString('ff_priceref', _value.path);
+    _value != null
+        ? secureStorage.setString('ff_priceref', _value.path)
+        : secureStorage.remove('ff_priceref');
   }
 
   void deletePriceref() {
@@ -75,11 +79,10 @@ class FFAppState {
   DocumentReference? _personref;
   DocumentReference? get personref => _personref;
   set personref(DocumentReference? _value) {
-    if (_value == null) {
-      return;
-    }
     _personref = _value;
-    secureStorage.setString('ff_personref', _value.path);
+    _value != null
+        ? secureStorage.setString('ff_personref', _value.path)
+        : secureStorage.remove('ff_personref');
   }
 
   void deletePersonref() {
@@ -89,11 +92,10 @@ class FFAppState {
   DocumentReference? _mypersonref;
   DocumentReference? get mypersonref => _mypersonref;
   set mypersonref(DocumentReference? _value) {
-    if (_value == null) {
-      return;
-    }
     _mypersonref = _value;
-    secureStorage.setString('ff_mypersonref', _value.path);
+    _value != null
+        ? secureStorage.setString('ff_mypersonref', _value.path)
+        : secureStorage.remove('ff_mypersonref');
   }
 
   void deleteMypersonref() {
@@ -103,20 +105,27 @@ class FFAppState {
   DocumentReference? _yourpersonref;
   DocumentReference? get yourpersonref => _yourpersonref;
   set yourpersonref(DocumentReference? _value) {
-    if (_value == null) {
-      return;
-    }
     _yourpersonref = _value;
-    secureStorage.setString('ff_yourpersonref', _value.path);
+    _value != null
+        ? secureStorage.setString('ff_yourpersonref', _value.path)
+        : secureStorage.remove('ff_yourpersonref');
   }
 
   void deleteYourpersonref() {
     secureStorage.delete(key: 'ff_yourpersonref');
   }
 
-  bool searchdone = false;
+  bool _searchdone = false;
+  bool get searchdone => _searchdone;
+  set searchdone(bool _value) {
+    _searchdone = _value;
+  }
 
-  bool selectedfeel = false;
+  bool _selectedfeel = false;
+  bool get selectedfeel => _selectedfeel;
+  set selectedfeel(bool _value) {
+    _selectedfeel = _value;
+  }
 
   String _feeldaycate = '일별';
   String get feeldaycate => _feeldaycate;
@@ -129,15 +138,73 @@ class FFAppState {
     secureStorage.delete(key: 'ff_feeldaycate');
   }
 
-  String reservemonthday = '';
+  String _reservemonthday = '11/12';
+  String get reservemonthday => _reservemonthday;
+  set reservemonthday(String _value) {
+    _reservemonthday = _value;
+  }
 
-  String reservehour = '';
+  String _reservehour = '1';
+  String get reservehour => _reservehour;
+  set reservehour(String _value) {
+    _reservehour = _value;
+  }
 
-  int price = 0;
+  int _price = 30000;
+  int get price => _price;
+  set price(int _value) {
+    _price = _value;
+  }
 
-  String feelmonthdaynumber = '';
+  String _feelmonthdaynumber = '11/12';
+  String get feelmonthdaynumber => _feelmonthdaynumber;
+  set feelmonthdaynumber(String _value) {
+    _feelmonthdaynumber = _value;
+  }
 
-  int selectednum = 0;
+  int _selectednum = 5;
+  int get selectednum => _selectednum;
+  set selectednum(int _value) {
+    _selectednum = _value;
+  }
+
+  bool _piechart = false;
+  bool get piechart => _piechart;
+  set piechart(bool _value) {
+    _piechart = _value;
+  }
+
+  DateTime? _reserveCalendar =
+      DateTime.fromMillisecondsSinceEpoch(1669770120000);
+  DateTime? get reserveCalendar => _reserveCalendar;
+  set reserveCalendar(DateTime? _value) {
+    _reserveCalendar = _value;
+  }
+
+  DocumentReference? _reserveProref;
+  DocumentReference? get reserveProref => _reserveProref;
+  set reserveProref(DocumentReference? _value) {
+    _reserveProref = _value;
+  }
+
+  DocumentReference? _reservePersonref;
+  DocumentReference? get reservePersonref => _reservePersonref;
+  set reservePersonref(DocumentReference? _value) {
+    _reservePersonref = _value;
+  }
+
+  DateTime? _feelSelectcalendar =
+      DateTime.fromMillisecondsSinceEpoch(1669772100000);
+  DateTime? get feelSelectcalendar => _feelSelectcalendar;
+  set feelSelectcalendar(DateTime? _value) {
+    _feelSelectcalendar = _value;
+  }
+
+  String _calendarSelectDayString = '11/12';
+  String get calendarSelectDayString => _calendarSelectDayString;
+  set calendarSelectDayString(String _value) {
+    _calendarSelectDayString = _value;
+  }
 }
 
 LatLng? _latLngFromString(String? val) {
@@ -151,6 +218,8 @@ LatLng? _latLngFromString(String? val) {
 }
 
 extension FlutterSecureStorageExtensions on FlutterSecureStorage {
+  void remove(String key) => delete(key: key);
+
   Future<String?> getString(String key) async => await read(key: key);
   Future<void> setString(String key, String value) async =>
       await write(key: key, value: value);

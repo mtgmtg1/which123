@@ -14,6 +14,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class StudentPageWidget extends StatefulWidget {
@@ -73,6 +74,7 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
   Completer<List<AfterSayRecord>>? _firestoreRequestCompleter;
   List<ProRecord> simpleSearchResults = [];
   String? dropDownValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -82,7 +84,9 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
     super.initState();
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() => FFAppState().searchdone = false);
+      FFAppState().update(() {
+        FFAppState().searchdone = false;
+      });
     });
 
     if (!isWeb) {
@@ -106,6 +110,7 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -114,6 +119,8 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return StreamBuilder<List<ProRecord>>(
       stream: queryProRecord(
         queryBuilder: (proRecord) =>
@@ -141,7 +148,7 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
             child: DrawerWidget(),
           ),
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Stack(
               children: [
                 SingleChildScrollView(
@@ -230,8 +237,9 @@ class _StudentPageWidgetState extends State<StudentPageWidget>
                                     ],
                                     onChanged: (val) async {
                                       setState(() => dropDownValue = val);
-                                      setState(
-                                          () => FFAppState().searchdone = true);
+                                      FFAppState().update(() {
+                                        FFAppState().searchdone = true;
+                                      });
                                       await queryProRecordOnce()
                                           .then(
                                             (records) => simpleSearchResults =

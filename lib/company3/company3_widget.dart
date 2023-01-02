@@ -6,6 +6,7 @@ import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class Company3Widget extends StatefulWidget {
   const Company3Widget({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ class Company3Widget extends StatefulWidget {
 }
 
 class _Company3WidgetState extends State<Company3Widget> {
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -25,7 +27,15 @@ class _Company3WidgetState extends State<Company3Widget> {
   }
 
   @override
+  void dispose() {
+    _unfocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -34,7 +44,7 @@ class _Company3WidgetState extends State<Company3Widget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             SingleChildScrollView(

@@ -8,11 +8,13 @@ import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import '../flutter_flow/flutter_flow_widgets.dart';
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class CommunityWidget extends StatefulWidget {
@@ -26,6 +28,7 @@ class _CommunityWidgetState extends State<CommunityWidget> {
   List<Post1Record> simpleSearchResults = [];
   TextEditingController? textController;
   String? dropDownValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -35,7 +38,9 @@ class _CommunityWidgetState extends State<CommunityWidget> {
     super.initState();
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() => FFAppState().searchdone = false);
+      FFAppState().update(() {
+        FFAppState().searchdone = false;
+      });
     });
 
     if (!isWeb) {
@@ -53,6 +58,7 @@ class _CommunityWidgetState extends State<CommunityWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -62,6 +68,8 @@ class _CommunityWidgetState extends State<CommunityWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -70,7 +78,7 @@ class _CommunityWidgetState extends State<CommunityWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             Container(
@@ -199,8 +207,9 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                             .whenComplete(
                                                 () => setState(() {}));
 
-                                        setState(() =>
-                                            FFAppState().searchdone = true);
+                                        FFAppState().update(() {
+                                          FFAppState().searchdone = true;
+                                        });
                                       },
                                       obscureText: false,
                                       decoration: InputDecoration(
@@ -467,7 +476,7 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                                 Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(10, 5, 0, 5),
-                                                  child: Text(
+                                                  child: AutoSizeText(
                                                     con2MoPost1Record.postHead!,
                                                     textAlign: TextAlign.center,
                                                     style: FlutterFlowTheme.of(
@@ -492,7 +501,7 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                                 Padding(
                                                   padding: EdgeInsetsDirectional
                                                       .fromSTEB(5, 5, 5, 5),
-                                                  child: Text(
+                                                  child: AutoSizeText(
                                                     con2MoPost1Record.title!,
                                                     textAlign: TextAlign.center,
                                                     style: FlutterFlowTheme.of(
@@ -587,7 +596,8 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                                                           0,
                                                                           0,
                                                                           0),
-                                                              child: Text(
+                                                              child:
+                                                                  AutoSizeText(
                                                                 con2MoPost1Record
                                                                     .whoanswer!,
                                                                 style: FlutterFlowTheme.of(
@@ -608,65 +618,6 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                                                 style: FlutterFlowTheme.of(
                                                                         context)
                                                                     .bodyText1,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: 1,
-                                                        height: 50,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color:
-                                                              Color(0xFF7EDDE5),
-                                                        ),
-                                                      ),
-                                                      Container(
-                                                        width: 99,
-                                                        height: 55,
-                                                        decoration:
-                                                            BoxDecoration(),
-                                                        child: Row(
-                                                          mainAxisSize:
-                                                              MainAxisSize.min,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Icon(
-                                                              Icons.thumb_up,
-                                                              color: Color(
-                                                                  0xFF70CAF0),
-                                                              size: 20,
-                                                            ),
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          4,
-                                                                          0,
-                                                                          0,
-                                                                          0),
-                                                              child: Text(
-                                                                con2MoPost1Record
-                                                                    .goodNum!
-                                                                    .toString(),
-                                                                style: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyText1
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .bodyText1Family,
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .customColor3,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).bodyText1Family),
-                                                                    ),
                                                               ),
                                                             ),
                                                           ],
@@ -972,67 +923,6 @@ class _CommunityWidgetState extends State<CommunityWidget> {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .normal,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).bodyText1Family),
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      width: 1,
-                                                      height: 50,
-                                                      decoration: BoxDecoration(
-                                                        color:
-                                                            Color(0xFF7EDDE5),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      width: 99,
-                                                      height: 55,
-                                                      decoration:
-                                                          BoxDecoration(),
-                                                      child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Icon(
-                                                            Icons.thumb_up,
-                                                            color: Color(
-                                                                0xFF70CAF0),
-                                                            size: 20,
-                                                          ),
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        4,
-                                                                        0,
-                                                                        0,
-                                                                        0),
-                                                            child: Text(
-                                                              searchlistItem
-                                                                  .goodNum!
-                                                                  .toString(),
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .bodyText1
-                                                                  .override(
-                                                                    fontFamily:
-                                                                        'Lexend Deca',
-                                                                    color: Color(
-                                                                        0xFF70CAF0),
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500,
                                                                     useGoogleFonts: GoogleFonts
                                                                             .asMap()
                                                                         .containsKey(

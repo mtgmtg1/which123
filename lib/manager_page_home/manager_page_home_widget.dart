@@ -8,6 +8,7 @@ import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ManagerPageHomeWidget extends StatefulWidget {
   const ManagerPageHomeWidget({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class ManagerPageHomeWidget extends StatefulWidget {
 }
 
 class _ManagerPageHomeWidgetState extends State<ManagerPageHomeWidget> {
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -27,7 +29,15 @@ class _ManagerPageHomeWidgetState extends State<ManagerPageHomeWidget> {
   }
 
   @override
+  void dispose() {
+    _unfocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Color(0xFFFAFCF4),
@@ -540,7 +550,7 @@ class _ManagerPageHomeWidgetState extends State<ManagerPageHomeWidget> {
         ),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -1224,8 +1234,9 @@ class _ManagerPageHomeWidgetState extends State<ManagerPageHomeWidget> {
                                                                 ),
                                                                 child:
                                                                     AuthUserStreamWidget(
-                                                                  child:
-                                                                      ClipRRect(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          ClipRRect(
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             16),

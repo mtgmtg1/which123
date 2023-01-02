@@ -10,6 +10,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfileviewWidget extends StatefulWidget {
   const ProfileviewWidget({
@@ -24,20 +25,16 @@ class ProfileviewWidget extends StatefulWidget {
 }
 
 class _ProfileviewWidgetState extends State<ProfileviewWidget> {
-  TextEditingController? cert1Controller1;
-  TextEditingController? companyController1;
-  TextEditingController? workhistoryController1;
-  TextEditingController? introController1;
-  TextEditingController? userNameController1;
-  TextEditingController? cert1Controller2;
+  TextEditingController? cert1Controller;
   TextEditingController? cert2Controller;
   TextEditingController? cert3Controller;
-  TextEditingController? companyController2;
-  TextEditingController? workhistoryController2;
-  TextEditingController? introController2;
-  TextEditingController? userNameController2;
-  final formKey1 = GlobalKey<FormState>();
+  TextEditingController? companyController;
+  TextEditingController? workhistoryController;
+  TextEditingController? introController;
+  TextEditingController? userNameController;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  final formKey1 = GlobalKey<FormState>();
   final formKey2 = GlobalKey<FormState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -54,43 +51,30 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
       });
     }
 
-    cert1Controller1 = TextEditingController(text: '자격증');
-    companyController1 = TextEditingController(text: '직장/학교');
-    workhistoryController1 = TextEditingController(text: '경력기간');
-    introController1 = TextEditingController(text: '소개');
-    userNameController1 = TextEditingController(text: '이름');
-    cert1Controller2 = TextEditingController();
-    cert2Controller = TextEditingController();
-    cert3Controller = TextEditingController();
-    companyController2 = TextEditingController();
-    workhistoryController2 = TextEditingController();
-    introController2 = TextEditingController();
-    userNameController2 = TextEditingController();
+    userNameController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
   void dispose() {
-    cert1Controller1?.dispose();
-    companyController1?.dispose();
-    workhistoryController1?.dispose();
-    introController1?.dispose();
-    userNameController1?.dispose();
-    cert1Controller2?.dispose();
-    cert2Controller?.dispose();
-    cert3Controller?.dispose();
-    companyController2?.dispose();
-    workhistoryController2?.dispose();
-    introController2?.dispose();
-    userNameController2?.dispose();
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
+    cert1Controller?.dispose();
+    cert2Controller?.dispose();
+    cert3Controller?.dispose();
+    companyController?.dispose();
+    workhistoryController?.dispose();
+    introController?.dispose();
+    userNameController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
@@ -99,7 +83,7 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             Align(
@@ -156,797 +140,6 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                         maxWidth: 222,
                                       ),
                                       decoration: BoxDecoration(),
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(11, 11, 11, 11),
-                                              child: Container(
-                                                width: 222,
-                                                height: 111,
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryBackground,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  shape: BoxShape.rectangle,
-                                                ),
-                                                alignment:
-                                                    AlignmentDirectional(0, 0),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(11, 11, 11, 11),
-                                              child: Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.4,
-                                                height: 222,
-                                                constraints: BoxConstraints(
-                                                  maxWidth: 222,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryBackground,
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                  shape: BoxShape.rectangle,
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Material(
-                                                        color:
-                                                            Colors.transparent,
-                                                        elevation: 5,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                          ),
-                                                          child: TextFormField(
-                                                            controller:
-                                                                userNameController1,
-                                                            readOnly: true,
-                                                            obscureText: false,
-                                                            decoration:
-                                                                InputDecoration(
-                                                              enabledBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: Color(
-                                                                      0x00000000),
-                                                                  width: 1,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              focusedBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: Color(
-                                                                      0x00000000),
-                                                                  width: 1,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              errorBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: Color(
-                                                                      0x00000000),
-                                                                  width: 1,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              focusedErrorBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: Color(
-                                                                      0x00000000),
-                                                                  width: 1,
-                                                                ),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              contentPadding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          20,
-                                                                          32,
-                                                                          20,
-                                                                          12),
-                                                            ),
-                                                            style: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .title3,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: Material(
-                                                color: Colors.transparent,
-                                                elevation: 5,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .primaryBackground,
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .sub2,
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 22, 0, 22),
-                                                    child: TextFormField(
-                                                      controller:
-                                                          introController1,
-                                                      readOnly: true,
-                                                      obscureText: false,
-                                                      decoration:
-                                                          InputDecoration(
-                                                        enabledBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            width: 2,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                        focusedBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            width: 2,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                        errorBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: Color(
-                                                                0x00000000),
-                                                            width: 2,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                        focusedErrorBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: Color(
-                                                                0x00000000),
-                                                            width: 2,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                        ),
-                                                        contentPadding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(20,
-                                                                    32, 20, 12),
-                                                      ),
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .subtitle1,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      maxLines: 4,
-                                                      keyboardType:
-                                                          TextInputType
-                                                              .multiline,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                  border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .sub2,
-                                                    width: 2,
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                      ),
-                                                      child: TextFormField(
-                                                        controller:
-                                                            companyController1,
-                                                        readOnly: true,
-                                                        obscureText: false,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          errorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          focusedErrorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          contentPadding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      20,
-                                                                      32,
-                                                                      20,
-                                                                      12),
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .subtitle1,
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        maxLines: null,
-                                                      ),
-                                                    ),
-                                                    Divider(
-                                                      thickness: 2,
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .sub2,
-                                                    ),
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: FlutterFlowTheme
-                                                                .of(context)
-                                                            .secondaryBackground,
-                                                      ),
-                                                      child: TextFormField(
-                                                        controller:
-                                                            workhistoryController1,
-                                                        readOnly: true,
-                                                        obscureText: false,
-                                                        decoration:
-                                                            InputDecoration(
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          errorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          focusedErrorBorder:
-                                                              OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Color(
-                                                                  0x00000000),
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                          contentPadding:
-                                                              EdgeInsetsDirectional
-                                                                  .fromSTEB(
-                                                                      20,
-                                                                      32,
-                                                                      20,
-                                                                      12),
-                                                        ),
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .subtitle1,
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  maxHeight: 120,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                  border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .sub2,
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Material(
-                                                        color:
-                                                            Colors.transparent,
-                                                        elevation: 4,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            border: Border.all(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .sub2,
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0, 0),
-                                                            child: Text(
-                                                              '회원종류',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .subtitle2,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Material(
-                                                        color:
-                                                            Colors.transparent,
-                                                        elevation: 4,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            border: Border.all(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .sub2,
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0, 0),
-                                                            child: Text(
-                                                              '성별',
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .subtitle2,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Material(
-                                                        color:
-                                                            Colors.transparent,
-                                                        elevation: 4,
-                                                        child: Container(
-                                                          height: 100,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            border: Border.all(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .sub2,
-                                                            ),
-                                                          ),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0, 0),
-                                                            child: Text(
-                                                              '상담료',
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .subtitle2,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: ClipRRect(
-                                                child: Container(
-                                                  width: double.infinity,
-                                                  constraints: BoxConstraints(
-                                                    maxHeight: 150,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .secondaryBackground,
-                                                    border: Border.all(
-                                                      color:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .sub2,
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        '전문영역',
-                                                        style:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .subtitle2,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(3, 3, 3, 3),
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  maxHeight: 150,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .secondaryBackground,
-                                                  border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .sub2,
-                                                  ),
-                                                ),
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  children: [
-                                                    Expanded(
-                                                      child: Align(
-                                                        alignment:
-                                                            AlignmentDirectional(
-                                                                0, 0),
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .secondaryBackground,
-                                                            border: Border.all(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .sub2,
-                                                            ),
-                                                          ),
-                                                          alignment:
-                                                              AlignmentDirectional(
-                                                                  0, 0),
-                                                          child: Align(
-                                                            alignment:
-                                                                AlignmentDirectional(
-                                                                    0, 0),
-                                                            child:
-                                                                TextFormField(
-                                                              controller:
-                                                                  cert1Controller1,
-                                                              readOnly: true,
-                                                              obscureText:
-                                                                  false,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                enabledBorder:
-                                                                    OutlineInputBorder(
-                                                                  borderSide:
-                                                                      BorderSide(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                    width: 1,
-                                                                  ),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                                focusedBorder:
-                                                                    OutlineInputBorder(
-                                                                  borderSide:
-                                                                      BorderSide(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                    width: 1,
-                                                                  ),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                                errorBorder:
-                                                                    OutlineInputBorder(
-                                                                  borderSide:
-                                                                      BorderSide(
-                                                                    color: Color(
-                                                                        0x00000000),
-                                                                    width: 1,
-                                                                  ),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                                focusedErrorBorder:
-                                                                    OutlineInputBorder(
-                                                                  borderSide:
-                                                                      BorderSide(
-                                                                    color: Color(
-                                                                        0x00000000),
-                                                                    width: 1,
-                                                                  ),
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                                contentPadding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            3,
-                                                                            3,
-                                                                            3,
-                                                                            3),
-                                                              ),
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .subtitle2,
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(0, 11, 0, 11),
-                                              child: FFButtonWidget(
-                                                onPressed: () async {
-                                                  context.pushNamed(
-                                                    'reserveCalendar',
-                                                    queryParams: {
-                                                      'proref': serializeParam(
-                                                        containerProRecord
-                                                            .reference,
-                                                        ParamType
-                                                            .DocumentReference,
-                                                      ),
-                                                    }.withoutNulls,
-                                                  );
-                                                },
-                                                text: '예약하기',
-                                                options: FFButtonOptions(
-                                                  width: 130,
-                                                  height: 40,
-                                                  color: FlutterFlowTheme.of(
-                                                          context)
-                                                      .primaryColor,
-                                                  textStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .subtitle1
-                                                          .override(
-                                                            fontFamily:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .subtitle1Family,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .primaryBackground,
-                                                            useGoogleFonts: GoogleFonts
-                                                                    .asMap()
-                                                                .containsKey(
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .subtitle1Family),
-                                                          ),
-                                                  borderSide: BorderSide(
-                                                    color: Colors.transparent,
-                                                    width: 1,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     );
                                   },
                                 ),
@@ -1050,12 +243,11 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                 EdgeInsetsDirectional.fromSTEB(
                                                     11, 11, 11, 11),
                                             child: Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.4,
+                                              width: 222,
+                                              height: 111,
                                               constraints: BoxConstraints(
                                                 maxWidth: 222,
+                                                maxHeight: 111,
                                               ),
                                               decoration: BoxDecoration(
                                                 color:
@@ -1072,27 +264,15 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                     BorderRadius.circular(8),
                                                 shape: BoxShape.rectangle,
                                               ),
-                                              child: SingleChildScrollView(
-                                                child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.max,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              11),
-                                                      child: Image.network(
-                                                        valueOrDefault<String>(
-                                                          containerProRecord
-                                                              .img,
-                                                          'https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w480-h960-rw',
-                                                        ),
-                                                        fit: BoxFit.contain,
-                                                      ),
-                                                    ),
-                                                  ],
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(11),
+                                                child: Image.network(
+                                                  valueOrDefault<String>(
+                                                    containerProRecord.img,
+                                                    'https://play-lh.googleusercontent.com/38AGKCqmbjZ9OuWx4YjssAz3Y0DTWbiM5HB0ove1pNBq_o9mtWfGszjZNxZdwt_vgHo=w480-h960-rw',
+                                                  ),
+                                                  fit: BoxFit.contain,
                                                 ),
                                               ),
                                             ),
@@ -1119,7 +299,7 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                       ),
                                                       child: TextFormField(
                                                         controller:
-                                                            userNameController2,
+                                                            userNameController,
                                                         readOnly: true,
                                                         obscureText: false,
                                                         decoration:
@@ -1213,9 +393,7 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                           context)
                                                       .primaryBackground,
                                                   border: Border.all(
-                                                    color: FlutterFlowTheme.of(
-                                                            context)
-                                                        .sub2,
+                                                    color: Colors.transparent,
                                                     width: 2,
                                                   ),
                                                 ),
@@ -1224,13 +402,18 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                       .fromSTEB(22, 22, 22, 22),
                                                   child: TextFormField(
                                                     controller:
-                                                        introController2,
+                                                        introController ??=
+                                                            TextEditingController(
+                                                      text: valueOrDefault<
+                                                          String>(
+                                                        containerProRecord
+                                                            .intro,
+                                                        '소개',
+                                                      ),
+                                                    ),
                                                     readOnly: true,
                                                     obscureText: false,
                                                     decoration: InputDecoration(
-                                                      hintText:
-                                                          containerProRecord
-                                                              .intro,
                                                       enabledBorder:
                                                           UnderlineInputBorder(
                                                         borderSide: BorderSide(
@@ -1304,7 +487,7 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                                       .subtitle1Family),
                                                         ),
                                                     textAlign: TextAlign.center,
-                                                    maxLines: 15,
+                                                    maxLines: null,
                                                     keyboardType:
                                                         TextInputType.multiline,
                                                   ),
@@ -1341,14 +524,20 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                       ),
                                                       child: TextFormField(
                                                         controller:
-                                                            companyController2,
+                                                            companyController ??=
+                                                                TextEditingController(
+                                                          text: valueOrDefault<
+                                                              String>(
+                                                            containerProRecord
+                                                                .nowcompany,
+                                                            '현재 직장',
+                                                          ),
+                                                        ),
                                                         readOnly: true,
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          hintText:
-                                                              containerProRecord
-                                                                  .nowcompany,
+                                                          hintText: '직장/학교',
                                                           enabledBorder:
                                                               OutlineInputBorder(
                                                             borderSide:
@@ -1404,17 +593,18 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                           contentPadding:
                                                               EdgeInsetsDirectional
                                                                   .fromSTEB(
-                                                                      20,
-                                                                      32,
-                                                                      20,
-                                                                      12),
+                                                                      11,
+                                                                      11,
+                                                                      11,
+                                                                      11),
                                                         ),
                                                         style:
                                                             FlutterFlowTheme.of(
                                                                     context)
-                                                                .subtitle1,
+                                                                .subtitle2,
                                                         textAlign:
                                                             TextAlign.center,
+                                                        maxLines: null,
                                                       ),
                                                     ),
                                                     Divider(
@@ -1432,13 +622,18 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                       ),
                                                       child: TextFormField(
                                                         controller:
-                                                            workhistoryController2,
+                                                            workhistoryController ??=
+                                                                TextEditingController(
+                                                          text: valueOrDefault<
+                                                              String>(
+                                                            '${containerProRecord.workhistory?.toString()} 년 이상',
+                                                            '경력 기간',
+                                                          ),
+                                                        ),
                                                         readOnly: true,
                                                         obscureText: false,
                                                         decoration:
                                                             InputDecoration(
-                                                          hintText:
-                                                              '${containerProRecord.workhistory?.toString()} 년 이상',
                                                           enabledBorder:
                                                               OutlineInputBorder(
                                                             borderSide:
@@ -1693,7 +888,11 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                                         0,
                                                                         11),
                                                             child: Text(
-                                                              mainworkItem,
+                                                              valueOrDefault<
+                                                                  String>(
+                                                                mainworkItem,
+                                                                '전문분야',
+                                                              ),
                                                               style: FlutterFlowTheme
                                                                       .of(context)
                                                                   .subtitle2
@@ -1766,14 +965,15 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                                   0, 0),
                                                           child: TextFormField(
                                                             controller:
-                                                                cert1Controller2,
+                                                                cert1Controller ??=
+                                                                    TextEditingController(
+                                                              text: containerProRecord
+                                                                  .primarycertification,
+                                                            ),
                                                             readOnly: true,
                                                             obscureText: false,
                                                             decoration:
                                                                 InputDecoration(
-                                                              hintText:
-                                                                  containerProRecord
-                                                                      .primarycertification,
                                                               enabledBorder:
                                                                   OutlineInputBorder(
                                                                 borderSide:
@@ -1868,14 +1068,15 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                                 0, 0),
                                                         child: TextFormField(
                                                           controller:
-                                                              cert2Controller,
+                                                              cert2Controller ??=
+                                                                  TextEditingController(
+                                                            text: containerProRecord
+                                                                .secondcertification,
+                                                          ),
                                                           readOnly: true,
                                                           obscureText: false,
                                                           decoration:
                                                               InputDecoration(
-                                                            hintText:
-                                                                containerProRecord
-                                                                    .secondcertification,
                                                             enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderSide:
@@ -1969,14 +1170,15 @@ class _ProfileviewWidgetState extends State<ProfileviewWidget> {
                                                                 0, 0),
                                                         child: TextFormField(
                                                           controller:
-                                                              cert3Controller,
+                                                              cert3Controller ??=
+                                                                  TextEditingController(
+                                                            text: containerProRecord
+                                                                .thirdcertification,
+                                                          ),
                                                           readOnly: true,
                                                           obscureText: false,
                                                           decoration:
                                                               InputDecoration(
-                                                            hintText:
-                                                                containerProRecord
-                                                                    .thirdcertification,
                                                             enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderSide:

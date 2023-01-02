@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:text_search/text_search.dart';
 
 class ContentsWidget extends StatefulWidget {
@@ -26,6 +27,7 @@ class _ContentsWidgetState extends State<ContentsWidget> {
   List<ContentsRecord> simpleSearchResults = [];
   TextEditingController? textController;
   String? dropDownValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -35,7 +37,9 @@ class _ContentsWidgetState extends State<ContentsWidget> {
     super.initState();
     // On page load action.
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() => FFAppState().searchdone = false);
+      FFAppState().update(() {
+        FFAppState().searchdone = false;
+      });
     });
 
     if (!isWeb) {
@@ -53,6 +57,7 @@ class _ContentsWidgetState extends State<ContentsWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -62,6 +67,8 @@ class _ContentsWidgetState extends State<ContentsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Scaffold(
       key: scaffoldKey,
       drawer: Drawer(
@@ -69,7 +76,7 @@ class _ContentsWidgetState extends State<ContentsWidget> {
         child: DrawerWidget(),
       ),
       body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+        onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
         child: Stack(
           children: [
             SingleChildScrollView(

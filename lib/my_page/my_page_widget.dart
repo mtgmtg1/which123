@@ -1,9 +1,11 @@
 import '../auth/auth_util.dart';
 import '../backend/backend.dart';
+import '../components/bottommessage_widget.dart';
 import '../components/drawer_widget.dart';
 import '../components/feel_num_widget.dart';
 import '../components/navbar_widget.dart';
 import '../components/profil_menu_widget.dart';
+import '../flutter_flow/flutter_flow_calendar.dart';
 import '../flutter_flow/flutter_flow_charts.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
@@ -13,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class MyPageWidget extends StatefulWidget {
   const MyPageWidget({Key? key}) : super(key: key);
@@ -22,13 +25,12 @@ class MyPageWidget extends StatefulWidget {
 }
 
 class _MyPageWidgetState extends State<MyPageWidget> {
+  DateTimeRange? calendarSelectedDay;
   TextEditingController? textFieldBirthController;
   TextEditingController? textFieldNicnameController;
   TextEditingController? textFieldPhoneController;
-  TextEditingController? textFieldPwController;
-
-  late bool textFieldPwVisibility;
   TextEditingController? textFieldIntroduceController;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -45,25 +47,35 @@ class _MyPageWidgetState extends State<MyPageWidget> {
       });
     }
 
-    textFieldPwVisibility = false;
+    calendarSelectedDay = DateTimeRange(
+      start: DateTime.now().startOfDay,
+      end: DateTime.now().endOfDay,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
     textFieldBirthController?.dispose();
     textFieldNicnameController?.dispose();
     textFieldPhoneController?.dispose();
-    textFieldPwController?.dispose();
     textFieldIntroduceController?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+    final pieChartColorsList = [
+      Color(0xFFD354E3),
+      Color(0xFF9418A8),
+      Color(0xFF00335A),
+      Color(0xFF5CFB11)
+    ];
     return StreamBuilder<PersonRecord>(
       stream: PersonRecord.getDocument(currentUserReference!),
       builder: (context, snapshot) {
@@ -88,7 +100,7 @@ class _MyPageWidgetState extends State<MyPageWidget> {
             child: DrawerWidget(),
           ),
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Stack(
               children: [
                 Align(
@@ -141,7 +153,8 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                               .languageCode,
                                         ))
                                       AuthUserStreamWidget(
-                                        child: SingleChildScrollView(
+                                        builder: (context) =>
+                                            SingleChildScrollView(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.max,
                                             mainAxisAlignment:
@@ -252,54 +265,27 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                   Padding(
                                     padding: EdgeInsetsDirectional.fromSTEB(
                                         0, 11, 0, 0),
-                                    child: StreamBuilder<List<FeelsetRecord>>(
-                                      stream: queryFeelsetRecord(
-                                        queryBuilder: (feelsetRecord) =>
-                                            feelsetRecord.where('userref',
-                                                isEqualTo:
-                                                    currentUserReference),
-                                        limit: 365,
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      constraints: BoxConstraints(
+                                        maxWidth: 999,
                                       ),
-                                      builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 50,
-                                              height: 50,
-                                              child: CircularProgressIndicator(
-                                                color:
+                                      decoration: BoxDecoration(),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(0, 0, 0, 2),
+                                              child: Text(
+                                                '오늘의 기분 입력',
+                                                style:
                                                     FlutterFlowTheme.of(context)
-                                                        .primaryColor,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        List<FeelsetRecord>
-                                            topconFeelsetRecordList =
-                                            snapshot.data!;
-                                        return Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
-                                          constraints: BoxConstraints(
-                                            maxWidth: 999,
-                                          ),
-                                          decoration: BoxDecoration(),
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(0, 0, 0, 2),
-                                                  child: Text(
-                                                    '오늘의 기분 입력',
-                                                    style: FlutterFlowTheme.of(
-                                                            context)
                                                         .bodyText1
                                                         .override(
                                                           fontFamily:
@@ -314,103 +300,46 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                           context)
                                                                       .bodyText1Family),
                                                         ),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 0, 0, 10),
-                                                    child: Text(
-                                                      '이미 입력한 기분은 내 정보 설정에서 수정이 가능 합니다. :)',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .bodyText1
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                              ),
+                                            ),
+                                            Container(
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              decoration: BoxDecoration(),
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(0, 0, 0, 10),
+                                                child: Text(
+                                                  '이미 입력한 기분은 내 정보 설정에서 수정이 가능 합니다. :)',
+                                                  textAlign: TextAlign.center,
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyText1
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .bodyText1Family,
+                                                        useGoogleFonts: GoogleFonts
+                                                                .asMap()
+                                                            .containsKey(
+                                                                FlutterFlowTheme.of(
                                                                         context)
-                                                                    .bodyText1Family,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyText1Family),
-                                                                lineHeight: 1.2,
-                                                              ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                FeelNumWidget(),
-                                                Container(
-                                                  decoration: BoxDecoration(),
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsetsDirectional
-                                                            .fromSTEB(
-                                                                0, 11, 0, 0),
-                                                    child:
-                                                        SingleChildScrollView(
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        0,
-                                                                        0,
-                                                                        0,
-                                                                        30),
-                                                            child: Text(
-                                                              '감정점수 히스토리',
-                                                              style: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .title2,
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: FlutterFlowTheme
-                                                                      .of(context)
-                                                                  .primaryBackground,
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  blurRadius: 4,
-                                                                  color: Color(
-                                                                      0x33000000),
-                                                                  offset:
-                                                                      Offset(
-                                                                          0, 2),
-                                                                )
-                                                              ],
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                            ),
-                                                          ),
-                                                        ],
+                                                                    .bodyText1Family),
+                                                        lineHeight: 1.2,
                                                       ),
-                                                    ),
-                                                  ),
                                                 ),
-                                                Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(0, 11, 0, 0),
-                                                  child: Row(
+                                              ),
+                                            ),
+                                            FeelNumWidget(),
+                                            Container(
+                                              decoration: BoxDecoration(),
+                                              child: Padding(
+                                                padding: EdgeInsetsDirectional
+                                                    .fromSTEB(0, 11, 0, 0),
+                                                child: SingleChildScrollView(
+                                                  child: Column(
                                                     mainAxisSize:
                                                         MainAxisSize.max,
                                                     mainAxisAlignment:
@@ -421,602 +350,818 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                         padding:
                                                             EdgeInsetsDirectional
                                                                 .fromSTEB(0, 0,
-                                                                    11, 0),
-                                                        child: FFButtonWidget(
-                                                          onPressed: () async {
-                                                            setState(() =>
-                                                                FFAppState()
-                                                                        .feeldaycate =
-                                                                    '일');
-                                                          },
-                                                          text: '일별',
-                                                          options:
-                                                              FFButtonOptions(
-                                                            width: 99,
-                                                            height: 40,
-                                                            color: Color(
-                                                                0xFFD411E4),
-                                                            textStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .subtitle2
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .subtitle2Family,
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryBackground,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).subtitle2Family),
-                                                                    ),
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
+                                                                    0, 30),
+                                                        child: Text(
+                                                          '감정점수 히스토리',
+                                                          style: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .title2,
                                                         ),
                                                       ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsetsDirectional
-                                                                .fromSTEB(0, 0,
-                                                                    11, 0),
-                                                        child: FFButtonWidget(
-                                                          onPressed: () async {
-                                                            setState(() =>
-                                                                FFAppState()
-                                                                        .feeldaycate =
-                                                                    '주');
-                                                          },
-                                                          text: '주별',
-                                                          options:
-                                                              FFButtonOptions(
-                                                            width: 99,
-                                                            height: 40,
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .secondaryColor,
-                                                            textStyle:
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .subtitle2
-                                                                    .override(
-                                                                      fontFamily:
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .subtitle2Family,
-                                                                      color: Colors
-                                                                          .white,
-                                                                      useGoogleFonts: GoogleFonts
-                                                                              .asMap()
-                                                                          .containsKey(
-                                                                              FlutterFlowTheme.of(context).subtitle2Family),
-                                                                    ),
-                                                            borderSide:
-                                                                BorderSide(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              width: 1,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      FFButtonWidget(
-                                                        onPressed: () async {
-                                                          setState(() =>
-                                                              FFAppState()
-                                                                      .feeldaycate =
-                                                                  '월');
-                                                        },
-                                                        text: '월별',
-                                                        options:
-                                                            FFButtonOptions(
-                                                          width: 99,
-                                                          height: 40,
+                                                      Container(
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color: FlutterFlowTheme
                                                                   .of(context)
-                                                              .primaryColor,
-                                                          textStyle:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .subtitle2
-                                                                  .override(
-                                                                    fontFamily:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .subtitle2Family,
-                                                                    color: Colors
-                                                                        .white,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).subtitle2Family),
-                                                                  ),
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color: Colors
-                                                                .transparent,
-                                                            width: 1,
-                                                          ),
+                                                              .primaryBackground,
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              blurRadius: 4,
+                                                              color: Color(
+                                                                  0x33000000),
+                                                              offset:
+                                                                  Offset(0, 2),
+                                                            )
+                                                          ],
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(8),
+                                                                  .circular(10),
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
-                                                if (FFAppState().feeldaycate ==
-                                                    '일')
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(11, 11,
-                                                                  11, 11),
-                                                      child: Container(
-                                                        width: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .width,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.44,
-                                                        child: Stack(
-                                                          children: [
-                                                            FlutterFlowLineChart(
-                                                              data: [
-                                                                FFLineChartData(
-                                                                  xData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.createat)
-                                                                      .toList(),
-                                                                  yData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.feel)
-                                                                      .toList(),
-                                                                  settings:
-                                                                      LineChartBarData(
-                                                                    color: Color(
-                                                                        0xFFD354E3),
-                                                                    barWidth: 1,
-                                                                    isCurved:
-                                                                        true,
-                                                                    preventCurveOverShooting:
-                                                                        true,
-                                                                    dotData: FlDotData(
-                                                                        show:
-                                                                            false),
-                                                                  ),
-                                                                )
-                                                              ],
-                                                              chartStylingInfo:
-                                                                  ChartStylingInfo(
-                                                                enableTooltip:
-                                                                    true,
-                                                                tooltipBackgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .customColor3,
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                showGrid: true,
-                                                                borderColor:
-                                                                    Colors
-                                                                        .black,
-                                                                borderWidth: 1,
-                                                              ),
-                                                              axisBounds:
-                                                                  AxisBounds(
-                                                                maxX: 30,
-                                                                maxY: 10,
-                                                              ),
-                                                              xAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '일자별',
-                                                                titleTextStyle:
-                                                                    TextStyle(
-                                                                  fontSize: 14,
-                                                                ),
-                                                                showLabels:
-                                                                    true,
-                                                                labelInterval:
-                                                                    5,
-                                                              ),
-                                                              yAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '감정점수',
-                                                                titleTextStyle:
-                                                                    TextStyle(
-                                                                  fontSize: 14,
-                                                                ),
-                                                                showLabels:
-                                                                    true,
-                                                                labelInterval:
-                                                                    1,
-                                                              ),
-                                                            ),
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      1, 0.55),
-                                                              child:
-                                                                  FlutterFlowChartLegendWidget(
-                                                                entries: [
-                                                                  LegendEntry(
-                                                                      Color(
-                                                                          0xFFD354E3),
-                                                                      '일별'),
-                                                                ],
-                                                                width: 100,
-                                                                height: 50,
-                                                                textStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyText1,
-                                                                textPadding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            0,
-                                                                            0),
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            5,
-                                                                            0),
-                                                                backgroundColor:
-                                                                    Color(
-                                                                        0x7357636C),
-                                                                borderWidth: 1,
-                                                                borderColor:
-                                                                    Colors
-                                                                        .black,
-                                                                indicatorSize:
-                                                                    10,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                if (FFAppState().feeldaycate ==
-                                                    '주')
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(11, 11,
-                                                                  11, 11),
-                                                      child: Container(
-                                                        width: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .width,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.44,
-                                                        child: Stack(
-                                                          children: [
-                                                            FlutterFlowLineChart(
-                                                              data: [
-                                                                FFLineChartData(
-                                                                  xData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.createat)
-                                                                      .toList(),
-                                                                  yData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.feel)
-                                                                      .toList(),
-                                                                  settings:
-                                                                      LineChartBarData(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .tertiaryColor,
-                                                                    barWidth: 1,
-                                                                    dotData: FlDotData(
-                                                                        show:
-                                                                            false),
-                                                                    belowBarData:
-                                                                        BarAreaData(
-                                                                      show:
-                                                                          true,
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .secondaryColor,
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              ],
-                                                              chartStylingInfo:
-                                                                  ChartStylingInfo(
-                                                                enableTooltip:
-                                                                    true,
-                                                                tooltipBackgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .customColor3,
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                showGrid: true,
-                                                                borderColor:
-                                                                    Colors
-                                                                        .black,
-                                                                borderWidth: 1,
-                                                              ),
-                                                              axisBounds:
-                                                                  AxisBounds(
-                                                                maxX: 70,
-                                                                maxY: 10,
-                                                              ),
-                                                              xAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '주별',
-                                                                titleTextStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .subtitle2,
-                                                                showLabels:
-                                                                    true,
-                                                                labelInterval:
-                                                                    7,
-                                                              ),
-                                                              yAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '감정점수',
-                                                                titleTextStyle:
-                                                                    TextStyle(
-                                                                  fontSize: 14,
-                                                                ),
-                                                                showLabels:
-                                                                    true,
-                                                                labelInterval:
-                                                                    1,
-                                                              ),
-                                                            ),
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      1, 0.6),
-                                                              child:
-                                                                  FlutterFlowChartLegendWidget(
-                                                                entries: [
-                                                                  LegendEntry(
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .tertiaryColor,
-                                                                      '주별'),
-                                                                ],
-                                                                width: 100,
-                                                                height: 50,
-                                                                textStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyText1,
-                                                                textPadding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            0,
-                                                                            0),
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            5,
-                                                                            0),
-                                                                backgroundColor:
-                                                                    Color(
-                                                                        0x81FFFFFF),
-                                                                borderWidth: 1,
-                                                                borderColor:
-                                                                    Colors
-                                                                        .black,
-                                                                indicatorSize:
-                                                                    10,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                if (FFAppState().feeldaycate ==
-                                                    '월')
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color: FlutterFlowTheme
-                                                              .of(context)
-                                                          .secondaryBackground,
-                                                    ),
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsetsDirectional
-                                                              .fromSTEB(11, 11,
-                                                                  11, 11),
-                                                      child: Container(
-                                                        width: MediaQuery.of(
-                                                                context)
-                                                            .size
-                                                            .width,
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.44,
-                                                        child: Stack(
-                                                          children: [
-                                                            FlutterFlowLineChart(
-                                                              data: [
-                                                                FFLineChartData(
-                                                                  xData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.createat)
-                                                                      .toList(),
-                                                                  yData: topconFeelsetRecordList
-                                                                      .map((d) =>
-                                                                          d.feel)
-                                                                      .toList(),
-                                                                  settings:
-                                                                      LineChartBarData(
-                                                                    color: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryColor,
-                                                                    barWidth: 1,
-                                                                    isCurved:
-                                                                        true,
-                                                                    preventCurveOverShooting:
-                                                                        true,
-                                                                    dotData: FlDotData(
-                                                                        show:
-                                                                            false),
-                                                                    belowBarData:
-                                                                        BarAreaData(
-                                                                      show:
-                                                                          true,
-                                                                      color: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryColor,
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              ],
-                                                              chartStylingInfo:
-                                                                  ChartStylingInfo(
-                                                                enableTooltip:
-                                                                    true,
-                                                                tooltipBackgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .customColor3,
-                                                                backgroundColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryBackground,
-                                                                borderColor:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .primaryText,
-                                                                borderWidth: 2,
-                                                              ),
-                                                              axisBounds:
-                                                                  AxisBounds(
-                                                                maxX: 300,
-                                                                maxY: 10,
-                                                              ),
-                                                              xAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '월별',
-                                                                titleTextStyle:
-                                                                    FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .subtitle2,
-                                                              ),
-                                                              yAxisLabelInfo:
-                                                                  AxisLabelInfo(
-                                                                title: '감정점수',
-                                                                titleTextStyle:
-                                                                    TextStyle(
-                                                                  fontSize: 14,
-                                                                ),
-                                                                showLabels:
-                                                                    true,
-                                                                labelInterval:
-                                                                    1,
-                                                              ),
-                                                            ),
-                                                            Align(
-                                                              alignment:
-                                                                  AlignmentDirectional(
-                                                                      1, 0.75),
-                                                              child:
-                                                                  FlutterFlowChartLegendWidget(
-                                                                entries: [
-                                                                  LegendEntry(
-                                                                      FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .primaryColor,
-                                                                      '월별'),
-                                                                ],
-                                                                width: 100,
-                                                                height: 50,
-                                                                textStyle: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyText1,
-                                                                textPadding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            0,
-                                                                            0),
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            5,
-                                                                            0,
-                                                                            5,
-                                                                            0),
-                                                                backgroundColor:
-                                                                    Color(
-                                                                        0x77FFFFFF),
-                                                                borderWidth: 1,
-                                                                borderColor:
-                                                                    Colors
-                                                                        .black,
-                                                                indicatorSize:
-                                                                    10,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      },
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(0, 11, 0, 0),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                0, 0, 11, 0),
+                                                    child: FFButtonWidget(
+                                                      onPressed: () async {
+                                                        FFAppState().update(() {
+                                                          FFAppState()
+                                                                  .feeldaycate =
+                                                              '일';
+                                                        });
+                                                      },
+                                                      text: '일별',
+                                                      options: FFButtonOptions(
+                                                        width: 99,
+                                                        height: 40,
+                                                        color:
+                                                            Color(0xFFD411E4),
+                                                        textStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .subtitle2
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .subtitle2Family,
+                                                                  color: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .primaryBackground,
+                                                                  useGoogleFonts: GoogleFonts
+                                                                          .asMap()
+                                                                      .containsKey(
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .subtitle2Family),
+                                                                ),
+                                                        borderSide: BorderSide(
+                                                          color: Colors
+                                                              .transparent,
+                                                          width: 1,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                0, 0, 11, 0),
+                                                    child: FFButtonWidget(
+                                                      onPressed: () async {
+                                                        FFAppState().update(() {
+                                                          FFAppState()
+                                                                  .feeldaycate =
+                                                              '주';
+                                                        });
+                                                      },
+                                                      text: '주별',
+                                                      options: FFButtonOptions(
+                                                        width: 99,
+                                                        height: 40,
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .secondaryColor,
+                                                        textStyle:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .subtitle2
+                                                                .override(
+                                                                  fontFamily: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .subtitle2Family,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  useGoogleFonts: GoogleFonts
+                                                                          .asMap()
+                                                                      .containsKey(
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .subtitle2Family),
+                                                                ),
+                                                        borderSide: BorderSide(
+                                                          color: Colors
+                                                              .transparent,
+                                                          width: 1,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(8),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  FFButtonWidget(
+                                                    onPressed: () async {
+                                                      FFAppState().update(() {
+                                                        FFAppState()
+                                                            .feeldaycate = '월';
+                                                      });
+                                                    },
+                                                    text: '월별',
+                                                    options: FFButtonOptions(
+                                                      width: 99,
+                                                      height: 40,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryColor,
+                                                      textStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .subtitle2
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .subtitle2Family,
+                                                                color: Colors
+                                                                    .white,
+                                                                useGoogleFonts: GoogleFonts
+                                                                        .asMap()
+                                                                    .containsKey(
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .subtitle2Family),
+                                                              ),
+                                                      borderSide: BorderSide(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(0, 11, 0, 0),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.max,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  FFButtonWidget(
+                                                    onPressed: () async {
+                                                      FFAppState().update(() {
+                                                        FFAppState().piechart =
+                                                            true;
+                                                      });
+                                                    },
+                                                    text: '원형차트',
+                                                    options: FFButtonOptions(
+                                                      width: 99,
+                                                      height: 40,
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .customColor1,
+                                                      textStyle:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .subtitle2
+                                                              .override(
+                                                                fontFamily: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .subtitle2Family,
+                                                                color: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .primaryBackground,
+                                                                useGoogleFonts: GoogleFonts
+                                                                        .asMap()
+                                                                    .containsKey(
+                                                                        FlutterFlowTheme.of(context)
+                                                                            .subtitle2Family),
+                                                              ),
+                                                      borderSide: BorderSide(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 1,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            StreamBuilder<List<FeelsetRecord>>(
+                                              stream: queryFeelsetRecord(
+                                                queryBuilder: (feelsetRecord) =>
+                                                    feelsetRecord
+                                                        .where('userref',
+                                                            isEqualTo:
+                                                                currentUserReference)
+                                                        .orderBy('createat'),
+                                              ),
+                                              builder: (context, snapshot) {
+                                                // Customize what your widget looks like when it's loading.
+                                                if (!snapshot.hasData) {
+                                                  return Center(
+                                                    child: SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        color:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .primaryColor,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                List<FeelsetRecord>
+                                                    containerFeelsetRecordList =
+                                                    snapshot.data!;
+                                                return Container(
+                                                  decoration: BoxDecoration(
+                                                    color: FlutterFlowTheme.of(
+                                                            context)
+                                                        .secondaryBackground,
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      if (FFAppState()
+                                                              .piechart ==
+                                                          true)
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondaryBackground,
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        11,
+                                                                        11,
+                                                                        11,
+                                                                        11),
+                                                            child: Container(
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.44,
+                                                              child:
+                                                                  FlutterFlowPieChart(
+                                                                data:
+                                                                    FFPieChartData(
+                                                                  values: containerFeelsetRecordList
+                                                                      .map((d) =>
+                                                                          d.feel)
+                                                                      .toList(),
+                                                                  colors:
+                                                                      pieChartColorsList,
+                                                                  radius: [100],
+                                                                ),
+                                                                donutHoleRadius:
+                                                                    0,
+                                                                donutHoleColor:
+                                                                    Colors
+                                                                        .white,
+                                                                sectionLabelType:
+                                                                    PieChartSectionLabelType
+                                                                        .value,
+                                                                sectionLabelStyle:
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .title3,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (FFAppState()
+                                                              .feeldaycate ==
+                                                          '월')
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondaryBackground,
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        11,
+                                                                        11,
+                                                                        11,
+                                                                        11),
+                                                            child: Container(
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.44,
+                                                              child: Stack(
+                                                                children: [
+                                                                  FlutterFlowLineChart(
+                                                                    data: [
+                                                                      FFLineChartData(
+                                                                        xData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.createat)
+                                                                            .toList(),
+                                                                        yData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.feel)
+                                                                            .toList(),
+                                                                        settings:
+                                                                            LineChartBarData(
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).primaryColor,
+                                                                          barWidth:
+                                                                              1,
+                                                                          isCurved:
+                                                                              true,
+                                                                          preventCurveOverShooting:
+                                                                              true,
+                                                                          dotData:
+                                                                              FlDotData(show: false),
+                                                                          belowBarData:
+                                                                              BarAreaData(
+                                                                            show:
+                                                                                true,
+                                                                            color:
+                                                                                FlutterFlowTheme.of(context).primaryColor,
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    ],
+                                                                    chartStylingInfo:
+                                                                        ChartStylingInfo(
+                                                                      enableTooltip:
+                                                                          true,
+                                                                      tooltipBackgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .customColor3,
+                                                                      backgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .primaryBackground,
+                                                                      borderColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .primaryText,
+                                                                      borderWidth:
+                                                                          2,
+                                                                    ),
+                                                                    axisBounds:
+                                                                        AxisBounds(
+                                                                      maxX: 300,
+                                                                      maxY: 10,
+                                                                    ),
+                                                                    xAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '월별',
+                                                                      titleTextStyle:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .subtitle2,
+                                                                    ),
+                                                                    yAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '감정점수',
+                                                                      titleTextStyle:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                      ),
+                                                                      showLabels:
+                                                                          true,
+                                                                      labelInterval:
+                                                                          1,
+                                                                    ),
+                                                                  ),
+                                                                  Align(
+                                                                    alignment:
+                                                                        AlignmentDirectional(
+                                                                            1,
+                                                                            0.75),
+                                                                    child:
+                                                                        FlutterFlowChartLegendWidget(
+                                                                      entries: [
+                                                                        LegendEntry(
+                                                                            FlutterFlowTheme.of(context).primaryColor,
+                                                                            '월별'),
+                                                                      ],
+                                                                      width:
+                                                                          100,
+                                                                      height:
+                                                                          50,
+                                                                      textStyle:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyText1,
+                                                                      textPadding:
+                                                                          EdgeInsetsDirectional.fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              0,
+                                                                              0),
+                                                                      padding: EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              5,
+                                                                              0),
+                                                                      backgroundColor:
+                                                                          Color(
+                                                                              0x77FFFFFF),
+                                                                      borderWidth:
+                                                                          1,
+                                                                      borderColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      indicatorSize:
+                                                                          10,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (FFAppState()
+                                                              .feeldaycate ==
+                                                          '일')
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondaryBackground,
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        11,
+                                                                        11,
+                                                                        11,
+                                                                        11),
+                                                            child: Container(
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.44,
+                                                              child: Stack(
+                                                                children: [
+                                                                  FlutterFlowLineChart(
+                                                                    data: [
+                                                                      FFLineChartData(
+                                                                        xData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.createat)
+                                                                            .toList(),
+                                                                        yData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.feel)
+                                                                            .toList(),
+                                                                        settings:
+                                                                            LineChartBarData(
+                                                                          color:
+                                                                              Color(0xFFD354E3),
+                                                                          barWidth:
+                                                                              1,
+                                                                          isCurved:
+                                                                              true,
+                                                                          preventCurveOverShooting:
+                                                                              true,
+                                                                          dotData:
+                                                                              FlDotData(show: false),
+                                                                        ),
+                                                                      )
+                                                                    ],
+                                                                    chartStylingInfo:
+                                                                        ChartStylingInfo(
+                                                                      enableTooltip:
+                                                                          true,
+                                                                      tooltipBackgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .customColor3,
+                                                                      backgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .primaryBackground,
+                                                                      showGrid:
+                                                                          true,
+                                                                      borderColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      borderWidth:
+                                                                          1,
+                                                                    ),
+                                                                    axisBounds:
+                                                                        AxisBounds(
+                                                                      maxX: 30,
+                                                                      maxY: 10,
+                                                                    ),
+                                                                    xAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '일자별',
+                                                                      titleTextStyle:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                      ),
+                                                                      showLabels:
+                                                                          true,
+                                                                      labelInterval:
+                                                                          5,
+                                                                    ),
+                                                                    yAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '감정점수',
+                                                                      titleTextStyle:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                      ),
+                                                                      showLabels:
+                                                                          true,
+                                                                      labelInterval:
+                                                                          1,
+                                                                    ),
+                                                                  ),
+                                                                  Align(
+                                                                    alignment:
+                                                                        AlignmentDirectional(
+                                                                            1,
+                                                                            0.55),
+                                                                    child:
+                                                                        FlutterFlowChartLegendWidget(
+                                                                      entries: [
+                                                                        LegendEntry(
+                                                                            Color(0xFFD354E3),
+                                                                            '일별'),
+                                                                      ],
+                                                                      width:
+                                                                          100,
+                                                                      height:
+                                                                          50,
+                                                                      textStyle:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyText1,
+                                                                      textPadding:
+                                                                          EdgeInsetsDirectional.fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              0,
+                                                                              0),
+                                                                      padding: EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              5,
+                                                                              0),
+                                                                      backgroundColor:
+                                                                          Color(
+                                                                              0x7357636C),
+                                                                      borderWidth:
+                                                                          1,
+                                                                      borderColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      indicatorSize:
+                                                                          10,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      if (FFAppState()
+                                                              .feeldaycate ==
+                                                          '주')
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .secondaryBackground,
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsetsDirectional
+                                                                    .fromSTEB(
+                                                                        11,
+                                                                        11,
+                                                                        11,
+                                                                        11),
+                                                            child: Container(
+                                                              width:
+                                                                  MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .width,
+                                                              height: MediaQuery.of(
+                                                                          context)
+                                                                      .size
+                                                                      .height *
+                                                                  0.44,
+                                                              child: Stack(
+                                                                children: [
+                                                                  FlutterFlowLineChart(
+                                                                    data: [
+                                                                      FFLineChartData(
+                                                                        xData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.createat)
+                                                                            .toList(),
+                                                                        yData: containerFeelsetRecordList
+                                                                            .map((d) =>
+                                                                                d.feel)
+                                                                            .toList(),
+                                                                        settings:
+                                                                            LineChartBarData(
+                                                                          color:
+                                                                              FlutterFlowTheme.of(context).tertiaryColor,
+                                                                          barWidth:
+                                                                              1,
+                                                                          dotData:
+                                                                              FlDotData(show: false),
+                                                                          belowBarData:
+                                                                              BarAreaData(
+                                                                            show:
+                                                                                true,
+                                                                            color:
+                                                                                FlutterFlowTheme.of(context).secondaryColor,
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    ],
+                                                                    chartStylingInfo:
+                                                                        ChartStylingInfo(
+                                                                      enableTooltip:
+                                                                          true,
+                                                                      tooltipBackgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .customColor3,
+                                                                      backgroundColor:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .primaryBackground,
+                                                                      showGrid:
+                                                                          true,
+                                                                      borderColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      borderWidth:
+                                                                          1,
+                                                                    ),
+                                                                    axisBounds:
+                                                                        AxisBounds(
+                                                                      maxX: 70,
+                                                                      maxY: 10,
+                                                                    ),
+                                                                    xAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '주별',
+                                                                      titleTextStyle:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .subtitle2,
+                                                                      showLabels:
+                                                                          true,
+                                                                      labelInterval:
+                                                                          7,
+                                                                    ),
+                                                                    yAxisLabelInfo:
+                                                                        AxisLabelInfo(
+                                                                      title:
+                                                                          '감정점수',
+                                                                      titleTextStyle:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                      ),
+                                                                      showLabels:
+                                                                          true,
+                                                                      labelInterval:
+                                                                          1,
+                                                                    ),
+                                                                  ),
+                                                                  Align(
+                                                                    alignment:
+                                                                        AlignmentDirectional(
+                                                                            1,
+                                                                            0.6),
+                                                                    child:
+                                                                        FlutterFlowChartLegendWidget(
+                                                                      entries: [
+                                                                        LegendEntry(
+                                                                            FlutterFlowTheme.of(context).tertiaryColor,
+                                                                            '주별'),
+                                                                      ],
+                                                                      width:
+                                                                          100,
+                                                                      height:
+                                                                          50,
+                                                                      textStyle:
+                                                                          FlutterFlowTheme.of(context)
+                                                                              .bodyText1,
+                                                                      textPadding:
+                                                                          EdgeInsetsDirectional.fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              0,
+                                                                              0),
+                                                                      padding: EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                              5,
+                                                                              0,
+                                                                              5,
+                                                                              0),
+                                                                      backgroundColor:
+                                                                          Color(
+                                                                              0x81FFFFFF),
+                                                                      borderWidth:
+                                                                          1,
+                                                                      borderColor:
+                                                                          Colors
+                                                                              .black,
+                                                                      indicatorSize:
+                                                                          10,
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Container(
                                     width: MediaQuery.of(context).size.width,
-                                    height: 690,
                                     decoration: BoxDecoration(
                                       color: FlutterFlowTheme.of(context)
                                           .secondaryBackground,
@@ -1053,6 +1198,140 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                decoration: BoxDecoration(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryBackground,
+                                                ),
+                                                child: StreamBuilder<
+                                                    List<FeelsetRecord>>(
+                                                  stream: queryFeelsetRecord(
+                                                    queryBuilder: (feelsetRecord) =>
+                                                        feelsetRecord
+                                                            .where('userref',
+                                                                isEqualTo:
+                                                                    currentUserReference)
+                                                            .orderBy(
+                                                                'createat'),
+                                                  ),
+                                                  builder: (context, snapshot) {
+                                                    // Customize what your widget looks like when it's loading.
+                                                    if (!snapshot.hasData) {
+                                                      return Center(
+                                                        child: SizedBox(
+                                                          width: 50,
+                                                          height: 50,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            color: FlutterFlowTheme
+                                                                    .of(context)
+                                                                .primaryColor,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                    List<FeelsetRecord>
+                                                        calendarFeelsetRecordList =
+                                                        snapshot.data!;
+                                                    return FlutterFlowCalendar(
+                                                      color:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primaryColor,
+                                                      weekFormat: false,
+                                                      weekStartsMonday: true,
+                                                      initialDate:
+                                                          getCurrentTimestamp,
+                                                      onChange: (DateTimeRange?
+                                                          newSelectedDate) async {
+                                                        calendarSelectedDay =
+                                                            newSelectedDate;
+                                                        FFAppState().update(() {
+                                                          FFAppState()
+                                                                  .feelSelectcalendar =
+                                                              calendarSelectedDay
+                                                                  ?.start;
+                                                          FFAppState()
+                                                                  .calendarSelectDayString =
+                                                              dateTimeFormat(
+                                                            'yMd',
+                                                            calendarSelectedDay!
+                                                                .start,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
+                                                          );
+                                                        });
+                                                        setState(() {});
+                                                      },
+                                                      titleStyle: TextStyle(),
+                                                      dayOfWeekStyle:
+                                                          TextStyle(),
+                                                      dateStyle: TextStyle(),
+                                                      selectedDateStyle:
+                                                          TextStyle(),
+                                                      inactiveDateStyle:
+                                                          TextStyle(),
+                                                      locale:
+                                                          FFLocalizations.of(
+                                                                  context)
+                                                              .languageCode,
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              Container(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.66,
+                                                decoration: BoxDecoration(
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryBackground,
+                                                ),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  children: [
+                                                    Text(
+                                                      '달력에서 해당 날짜를 탭하면 그 날짜의 감정점수를 볼 수 있습니다.',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .subtitle2,
+                                                    ),
+                                                    if (FFAppState()
+                                                            .selectedfeel !=
+                                                        null)
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(0, 11,
+                                                                    0, 0),
+                                                        child: Text(
+                                                          '${dateTimeFormat(
+                                                            'Md',
+                                                            calendarSelectedDay
+                                                                ?.start,
+                                                            locale: FFLocalizations
+                                                                    .of(context)
+                                                                .languageCode,
+                                                          )}의 감정점수는 ${FFAppState().selectednum.toString()}점 입니다.',
+                                                          style: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .bodyText1,
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
                                               Padding(
                                                 padding: EdgeInsetsDirectional
                                                     .fromSTEB(0, 20, 0, 30),
@@ -1196,7 +1475,9 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                   ),
                                                                   child:
                                                                       AuthUserStreamWidget(
-                                                                    child: Text(
+                                                                    builder:
+                                                                        (context) =>
+                                                                            Text(
                                                                       currentUserDisplayName,
                                                                       style: FlutterFlowTheme.of(
                                                                               context)
@@ -1419,8 +1700,12 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                   controller:
                                                                       textFieldNicnameController ??=
                                                                           TextEditingController(
-                                                                    text: columnPersonRecord!
-                                                                        .nickname,
+                                                                    text: valueOrDefault<
+                                                                        String>(
+                                                                      columnPersonRecord!
+                                                                          .nickname,
+                                                                      '닉네임없음',
+                                                                    ),
                                                                   ),
                                                                   obscureText:
                                                                       false,
@@ -1513,6 +1798,8 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                         useGoogleFonts:
                                                                             GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
                                                                       ),
+                                                                  maxLines:
+                                                                      null,
                                                                 ),
                                                               ),
                                                             ],
@@ -1754,221 +2041,6 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                       AlignmentDirectional(
                                                                           0, 0),
                                                                   child: Text(
-                                                                    '패스워드',
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyText1
-                                                                        .override(
-                                                                          fontFamily:
-                                                                              FlutterFlowTheme.of(context).bodyText1Family,
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.normal,
-                                                                          useGoogleFonts:
-                                                                              GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
-                                                                        ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Padding(
-                                                                padding:
-                                                                    EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            10,
-                                                                            0,
-                                                                            10,
-                                                                            0),
-                                                                child:
-                                                                    Container(
-                                                                  width: 1,
-                                                                  height: 20,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: Color(
-                                                                        0xFF4CABC4),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Container(
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.6,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
-                                                                ),
-                                                                child:
-                                                                    TextFormField(
-                                                                  controller:
-                                                                      textFieldPwController ??=
-                                                                          TextEditingController(
-                                                                    text: columnPersonRecord!
-                                                                        .password,
-                                                                  ),
-                                                                  obscureText:
-                                                                      !textFieldPwVisibility,
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    hintStyle: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyText2,
-                                                                    enabledBorder:
-                                                                        UnderlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                        color: Color(
-                                                                            0x00000000),
-                                                                        width:
-                                                                            1,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          const BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(4.0),
-                                                                        topRight:
-                                                                            Radius.circular(4.0),
-                                                                      ),
-                                                                    ),
-                                                                    focusedBorder:
-                                                                        UnderlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                        color: Color(
-                                                                            0x00000000),
-                                                                        width:
-                                                                            1,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          const BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(4.0),
-                                                                        topRight:
-                                                                            Radius.circular(4.0),
-                                                                      ),
-                                                                    ),
-                                                                    errorBorder:
-                                                                        UnderlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                        color: Color(
-                                                                            0x00000000),
-                                                                        width:
-                                                                            1,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          const BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(4.0),
-                                                                        topRight:
-                                                                            Radius.circular(4.0),
-                                                                      ),
-                                                                    ),
-                                                                    focusedErrorBorder:
-                                                                        UnderlineInputBorder(
-                                                                      borderSide:
-                                                                          BorderSide(
-                                                                        color: Color(
-                                                                            0x00000000),
-                                                                        width:
-                                                                            1,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          const BorderRadius
-                                                                              .only(
-                                                                        topLeft:
-                                                                            Radius.circular(4.0),
-                                                                        topRight:
-                                                                            Radius.circular(4.0),
-                                                                      ),
-                                                                    ),
-                                                                    suffixIcon:
-                                                                        InkWell(
-                                                                      onTap: () =>
-                                                                          setState(
-                                                                        () => textFieldPwVisibility =
-                                                                            !textFieldPwVisibility,
-                                                                      ),
-                                                                      focusNode:
-                                                                          FocusNode(
-                                                                              skipTraversal: true),
-                                                                      child:
-                                                                          Icon(
-                                                                        textFieldPwVisibility
-                                                                            ? Icons.visibility_outlined
-                                                                            : Icons.visibility_off_outlined,
-                                                                        color: Color(
-                                                                            0xFF757575),
-                                                                        size:
-                                                                            18,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  style: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyText1
-                                                                      .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).bodyText1Family,
-                                                                        fontWeight:
-                                                                            FontWeight.normal,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
-                                                                      ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.95,
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.09,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: FlutterFlowTheme
-                                                                    .of(context)
-                                                                .secondaryBackground,
-                                                          ),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .max,
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceEvenly,
-                                                            children: [
-                                                              Container(
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width *
-                                                                    0.3,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryBackground,
-                                                                ),
-                                                                child: Align(
-                                                                  alignment:
-                                                                      AlignmentDirectional(
-                                                                          0, 0),
-                                                                  child: Text(
                                                                     '생년월일',
                                                                     style: FlutterFlowTheme.of(
                                                                             context)
@@ -2022,9 +2094,13 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                   controller:
                                                                       textFieldBirthController ??=
                                                                           TextEditingController(
-                                                                    text: columnPersonRecord!
-                                                                        .birth
-                                                                        ?.toString(),
+                                                                    text: valueOrDefault<
+                                                                        String>(
+                                                                      columnPersonRecord!
+                                                                          .birth
+                                                                          .toString(),
+                                                                      '입력없음',
+                                                                    ),
                                                                   ),
                                                                   obscureText:
                                                                       false,
@@ -2119,9 +2195,6 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                         useGoogleFonts:
                                                                             GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
                                                                       ),
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .datetime,
                                                                 ),
                                                               ),
                                                             ],
@@ -2340,61 +2413,94 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                             context)
                                                         .secondaryBackground,
                                                   ),
-                                                  child: FFButtonWidget(
-                                                    onPressed: () async {
-                                                      final personUpdateData =
-                                                          createPersonRecordData(
-                                                        nickname:
-                                                            textFieldNicnameController
-                                                                    ?.text ??
-                                                                '',
-                                                        phoneNumber:
-                                                            textFieldPhoneController
-                                                                    ?.text ??
-                                                                '',
-                                                        birth:
-                                                            columnPersonRecord!
-                                                                .birth,
-                                                        introduce:
-                                                            textFieldIntroduceController
-                                                                    ?.text ??
-                                                                '',
-                                                      );
-                                                      await currentUserReference!
-                                                          .update(
-                                                              personUpdateData);
-                                                    },
-                                                    text: '정보 수정하기',
-                                                    options: FFButtonOptions(
-                                                      width: 130,
-                                                      height: 40,
-                                                      color: Color(0xFF61BDE4),
-                                                      textStyle:
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .subtitle2
-                                                              .override(
-                                                                fontFamily: FlutterFlowTheme.of(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    children: [
+                                                      FFButtonWidget(
+                                                        onPressed: () async {
+                                                          final personUpdateData =
+                                                              createPersonRecordData(
+                                                            nickname:
+                                                                textFieldNicnameController
+                                                                        ?.text ??
+                                                                    '',
+                                                            phoneNumber:
+                                                                textFieldPhoneController
+                                                                        ?.text ??
+                                                                    '',
+                                                            introduce:
+                                                                textFieldIntroduceController
+                                                                        ?.text ??
+                                                                    '',
+                                                          );
+                                                          await currentUserReference!
+                                                              .update(
+                                                                  personUpdateData);
+                                                          showModalBottomSheet(
+                                                            isScrollControlled:
+                                                                true,
+                                                            backgroundColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            barrierColor:
+                                                                FlutterFlowTheme.of(
                                                                         context)
-                                                                    .subtitle2Family,
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 17,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
+                                                                    .primaryBackground,
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return Padding(
+                                                                padding: MediaQuery.of(
+                                                                        context)
+                                                                    .viewInsets,
+                                                                child:
+                                                                    BottommessageWidget(
+                                                                  title:
+                                                                      '수정 완료',
+                                                                  txt:
+                                                                      '수정이 완료되었습니다.',
+                                                                ),
+                                                              );
+                                                            },
+                                                          ).then((value) =>
+                                                              setState(() {}));
+                                                        },
+                                                        text: '정보 수정하기',
+                                                        options:
+                                                            FFButtonOptions(
+                                                          width: 130,
+                                                          height: 40,
+                                                          color:
+                                                              Color(0xFF61BDE4),
+                                                          textStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .subtitle2
+                                                                  .override(
+                                                                    fontFamily:
                                                                         FlutterFlowTheme.of(context)
-                                                                            .subtitle2Family),
-                                                              ),
-                                                      borderSide: BorderSide(
-                                                        color:
-                                                            Colors.transparent,
-                                                        width: 1,
+                                                                            .subtitle2Family,
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontSize:
+                                                                        17,
+                                                                    useGoogleFonts: GoogleFonts
+                                                                            .asMap()
+                                                                        .containsKey(
+                                                                            FlutterFlowTheme.of(context).subtitle2Family),
+                                                                  ),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color: Colors
+                                                                .transparent,
+                                                            width: 1,
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
                                                       ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
+                                                    ],
                                                   ),
                                                 ),
                                               ),
@@ -2440,13 +2546,12 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                         ),
                                       ),
                                       child:
-                                          FutureBuilder<List<PersoncashRecord>>(
-                                        future: queryPersoncashRecordOnce(
+                                          StreamBuilder<List<PersoncashRecord>>(
+                                        stream: queryPersoncashRecord(
                                           parent: currentUserReference,
                                           queryBuilder: (personcashRecord) =>
-                                              personcashRecord.orderBy(
-                                                  'created_at',
-                                                  descending: true),
+                                              personcashRecord
+                                                  .orderBy('created_at'),
                                         ),
                                         builder: (context, snapshot) {
                                           // Customize what your widget looks like when it's loading.
@@ -2533,6 +2638,9 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                 mainAxisSize:
                                                                     MainAxisSize
                                                                         .max,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
                                                                 children: [
                                                                   Text(
                                                                     columnPersoncashRecord
@@ -2704,10 +2812,9 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                               decoration: BoxDecoration(),
                               child: StreamBuilder<List<Post1Record>>(
                                 stream: queryPost1Record(
-                                  queryBuilder: (post1Record) => post1Record
-                                      .where('ref',
-                                          isEqualTo: currentUserReference)
-                                      .orderBy('createTime', descending: true),
+                                  queryBuilder: (post1Record) =>
+                                      post1Record.where('ref',
+                                          isEqualTo: currentUserReference),
                                 ),
                                 builder: (context, snapshot) {
                                   // Customize what your widget looks like when it's loading.
@@ -2864,63 +2971,6 @@ class _MyPageWidgetState extends State<MyPageWidget> {
                                                                     style: FlutterFlowTheme.of(
                                                                             context)
                                                                         .bodyText1,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            width: 1,
-                                                            height: 50,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Color(
-                                                                  0xFF7EDDE5),
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            width: 110,
-                                                            height: 55,
-                                                            decoration:
-                                                                BoxDecoration(),
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .thumb_up,
-                                                                  color: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .secondaryColor,
-                                                                  size: 20,
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          4,
-                                                                          0,
-                                                                          0,
-                                                                          0),
-                                                                  child: Text(
-                                                                    columnPost1Record
-                                                                        .goodNum!
-                                                                        .toString(),
-                                                                    style: FlutterFlowTheme.of(
-                                                                            context)
-                                                                        .bodyText1
-                                                                        .override(
-                                                                          fontFamily:
-                                                                              FlutterFlowTheme.of(context).bodyText1Family,
-                                                                          color:
-                                                                              FlutterFlowTheme.of(context).secondaryColor,
-                                                                          useGoogleFonts:
-                                                                              GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).bodyText1Family),
-                                                                        ),
                                                                   ),
                                                                 ),
                                                               ],

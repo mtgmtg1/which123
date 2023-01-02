@@ -1,10 +1,10 @@
 import '../auth/auth_util.dart';
-import '../components/floating_widget.dart';
 import '../flutter_flow/flutter_flow_theme.dart';
 import '../flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfilMenuWidget extends StatefulWidget {
   const ProfilMenuWidget({Key? key}) : super(key: key);
@@ -23,6 +23,8 @@ class _ProfilMenuWidgetState extends State<ProfilMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return Container(
       constraints: BoxConstraints(
         maxHeight: 333,
@@ -53,6 +55,7 @@ class _ProfilMenuWidgetState extends State<ProfilMenuWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Expanded(
+                      flex: 3,
                       child: Align(
                         alignment: AlignmentDirectional(0, 0),
                         child: Container(
@@ -66,11 +69,14 @@ class _ProfilMenuWidgetState extends State<ProfilMenuWidget> {
                             shape: BoxShape.rectangle,
                           ),
                           alignment: AlignmentDirectional(0, 0),
-                          child: Image.asset(
-                            'assets/images/KakaoTalk_20220706_120253230.png',
-                            width: 255,
-                            height: 188,
-                            fit: BoxFit.contain,
+                          child: Align(
+                            alignment: AlignmentDirectional(0, 0),
+                            child: Image.asset(
+                              'assets/images/KakaoTalk_20220706_120253230.png',
+                              width: 255,
+                              height: 188,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
@@ -117,7 +123,7 @@ class _ProfilMenuWidgetState extends State<ProfilMenuWidget> {
                                           ),
                                     ),
                                     AuthUserStreamWidget(
-                                      child: Text(
+                                      builder: (context) => Text(
                                         currentUserDisplayName,
                                         style: FlutterFlowTheme.of(context)
                                             .bodyText1
@@ -223,24 +229,6 @@ class _ProfilMenuWidgetState extends State<ProfilMenuWidget> {
                           ],
                         ),
                       ),
-                    Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 11, 0),
-                      child: Container(
-                        decoration: BoxDecoration(),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding:
-                                  EdgeInsetsDirectional.fromSTEB(0, 11, 0, 0),
-                              child: FloatingWidget(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

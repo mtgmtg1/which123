@@ -12,8 +12,10 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ReserveCalendarWidget extends StatefulWidget {
   const ReserveCalendarWidget({
@@ -33,6 +35,7 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
   DateTimeRange? calendarSelectedDay;
   ReservationRecord? reserveout;
   String? radioButtonValue;
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
   late StreamSubscription<bool> _keyboardVisibilitySubscription;
   bool _isKeyboardVisible = false;
@@ -40,6 +43,13 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
   @override
   void initState() {
     super.initState();
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      FFAppState().update(() {
+        FFAppState().reserveProref = widget.proref;
+      });
+    });
+
     if (!isWeb) {
       _keyboardVisibilitySubscription =
           KeyboardVisibilityController().onChange.listen((bool visible) {
@@ -58,6 +68,7 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
 
   @override
   void dispose() {
+    _unfocusNode.dispose();
     if (!isWeb) {
       _keyboardVisibilitySubscription.cancel();
     }
@@ -66,6 +77,8 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return StreamBuilder<PersonRecord>(
       stream: PersonRecord.getDocument(currentUserReference!),
       builder: (context, snapshot) {
@@ -89,7 +102,7 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
             child: DrawerWidget(),
           ),
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: StreamBuilder<ProRecord>(
               stream: ProRecord.getDocument(widget.proref!),
               builder: (context, snapshot) {
@@ -131,13 +144,18 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                               decoration: BoxDecoration(),
                               child: FlutterFlowCalendar(
                                 color:
-                                    FlutterFlowTheme.of(context).primaryColor,
+                                    FlutterFlowTheme.of(context).secondaryColor,
                                 weekFormat: false,
                                 weekStartsMonday: true,
                                 initialDate: getCurrentTimestamp,
-                                onChange: (DateTimeRange? newSelectedDate) {
-                                  setState(() =>
-                                      calendarSelectedDay = newSelectedDate);
+                                onChange:
+                                    (DateTimeRange? newSelectedDate) async {
+                                  calendarSelectedDay = newSelectedDate;
+                                  FFAppState().update(() {
+                                    FFAppState().reserveCalendar =
+                                        calendarSelectedDay?.start;
+                                  });
+                                  setState(() {});
                                 },
                                 titleStyle: TextStyle(
                                   fontFamily: 'gmarket',
@@ -160,29 +178,16 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                               ),
                             ),
                           ),
-                          Text(
-                            '기존 예약시간(예약 불가능)',
-                            style: FlutterFlowTheme.of(context)
-                                .subtitle1
-                                .override(
-                                  fontFamily: FlutterFlowTheme.of(context)
-                                      .subtitle1Family,
-                                  color: FlutterFlowTheme.of(context)
-                                      .tertiaryColor,
-                                  fontWeight: FontWeight.normal,
-                                  useGoogleFonts: GoogleFonts.asMap()
-                                      .containsKey(FlutterFlowTheme.of(context)
-                                          .subtitle1Family),
-                                ),
-                          ),
                           Align(
                             alignment: AlignmentDirectional(0, 0),
                             child: StreamBuilder<List<ReservationRecord>>(
                               stream: queryReservationRecord(
                                 queryBuilder: (reservationRecord) =>
                                     reservationRecord
-                                        .where('proref',
-                                            isEqualTo: widget.proref)
+                                        .where('personref',
+                                            isEqualTo:
+                                                reserveCalendarPersonRecord
+                                                    .reference)
                                         .where('reservationtime',
                                             isEqualTo:
                                                 calendarSelectedDay?.start),
@@ -208,10 +213,32 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                                   constraints: BoxConstraints(
                                     maxWidth: 999,
                                   ),
-                                  decoration: BoxDecoration(),
+                                  decoration: BoxDecoration(
+                                    color: Color(0x21FFD200),
+                                  ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.max,
                                     children: [
+                                      Text(
+                                        '기존 예약시간(예약 불가능)',
+                                        style: FlutterFlowTheme.of(context)
+                                            .subtitle1
+                                            .override(
+                                              fontFamily:
+                                                  FlutterFlowTheme.of(context)
+                                                      .subtitle1Family,
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .tertiaryColor,
+                                              fontWeight: FontWeight.normal,
+                                              useGoogleFonts:
+                                                  GoogleFonts.asMap()
+                                                      .containsKey(
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .subtitle1Family),
+                                            ),
+                                      ),
                                       Padding(
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             5, 11, 5, 0),
@@ -259,10 +286,7 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                                         width:
                                             MediaQuery.of(context).size.width *
                                                 0.88,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                        ),
+                                        decoration: BoxDecoration(),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.max,
                                           children: [
@@ -319,10 +343,10 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                                               optionHeight: 33,
                                               textStyle:
                                                   FlutterFlowTheme.of(context)
-                                                      .subtitle1,
+                                                      .subtitle2,
                                               selectedTextStyle:
                                                   FlutterFlowTheme.of(context)
-                                                      .subtitle1,
+                                                      .subtitle2,
                                               buttonPosition:
                                                   RadioButtonPosition.left,
                                               direction: Axis.horizontal,
@@ -340,23 +364,25 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                                                   .fromSTEB(0, 11, 0, 0),
                                               child: FFButtonWidget(
                                                 onPressed: () async {
-                                                  setState(() => FFAppState()
-                                                              .reservemonthday =
-                                                          dateTimeFormat(
-                                                        'Md',
-                                                        calendarSelectedDay!
-                                                            .start,
-                                                        locale:
-                                                            FFLocalizations.of(
-                                                                    context)
-                                                                .languageCode,
-                                                      ));
-                                                  setState(() =>
-                                                      FFAppState().reservehour =
-                                                          radioButtonValue!);
-                                                  setState(() => FFAppState()
-                                                          .price =
-                                                      stackProRecord.price!);
+                                                  FFAppState().update(() {
+                                                    FFAppState()
+                                                            .reservemonthday =
+                                                        dateTimeFormat(
+                                                      'Md',
+                                                      calendarSelectedDay!
+                                                          .start,
+                                                      locale:
+                                                          FFLocalizations.of(
+                                                                  context)
+                                                              .languageCode,
+                                                    );
+                                                    FFAppState().reservehour =
+                                                        radioButtonValue!;
+                                                  });
+                                                  FFAppState().update(() {
+                                                    FFAppState().price =
+                                                        stackProRecord.price!;
+                                                  });
 
                                                   final reservationCreateData =
                                                       createReservationRecordData(
@@ -420,7 +446,7 @@ class _ReserveCalendarWidgetState extends State<ReserveCalendarWidget> {
                                                   height: 66,
                                                   color: FlutterFlowTheme.of(
                                                           context)
-                                                      .primaryColor,
+                                                      .secondaryText,
                                                   textStyle: FlutterFlowTheme
                                                           .of(context)
                                                       .subtitle2

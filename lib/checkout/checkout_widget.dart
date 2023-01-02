@@ -6,6 +6,7 @@ import '../flutter_flow/flutter_flow_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class CheckoutWidget extends StatefulWidget {
   const CheckoutWidget({
@@ -28,6 +29,7 @@ class CheckoutWidget extends StatefulWidget {
 }
 
 class _CheckoutWidgetState extends State<CheckoutWidget> {
+  final _unfocusNode = FocusNode();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -38,7 +40,15 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
   }
 
   @override
+  void dispose() {
+    _unfocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return StreamBuilder<ProRecord>(
       stream: ProRecord.getDocument(widget.proref!),
       builder: (context, snapshot) {
@@ -59,7 +69,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
           key: scaffoldKey,
           backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
           body: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).requestFocus(_unfocusNode),
             child: Align(
               alignment: AlignmentDirectional(0, 0),
               child: StreamBuilder<ReservationRecord>(

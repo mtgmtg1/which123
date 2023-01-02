@@ -18,13 +18,16 @@ abstract class FeelsetRecord
 
   int? get day;
 
+  String? get stringfeel;
+
   @BuiltValueField(wireName: kDocumentReferenceField)
   DocumentReference? get ffRef;
   DocumentReference get reference => ffRef!;
 
   static void _initializeBuilder(FeelsetRecordBuilder builder) => builder
     ..feel = 0
-    ..day = 0;
+    ..day = 0
+    ..stringfeel = '';
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('feelset');
@@ -52,6 +55,7 @@ Map<String, dynamic> createFeelsetRecordData({
   DateTime? createat,
   DocumentReference? userref,
   int? day,
+  String? stringfeel,
 }) {
   final firestoreData = serializers.toFirestore(
     FeelsetRecord.serializer,
@@ -60,7 +64,8 @@ Map<String, dynamic> createFeelsetRecordData({
         ..feel = feel
         ..createat = createat
         ..userref = userref
-        ..day = day,
+        ..day = day
+        ..stringfeel = stringfeel,
     ),
   );
 

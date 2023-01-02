@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
 import '../flutter_flow_theme.dart';
 import '../../backend/backend.dart';
+
 import '../../auth/firebase_user_provider.dart';
 
 import '../../index.dart';
@@ -133,29 +134,38 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => Company4NoticeWidget(),
             ),
             FFRoute(
-              name: 'Contents',
-              path: 'contents',
-              builder: (context, params) => ContentsWidget(),
-            ),
-            FFRoute(
               name: 'MyPage',
               path: 'myPage',
               requireAuth: true,
               builder: (context, params) => MyPageWidget(),
             ),
             FFRoute(
+              name: 'Contents',
+              path: 'contents',
+              builder: (context, params) => ContentsWidget(),
+            ),
+            FFRoute(
               name: 'checkout',
               path: 'checkout',
               builder: (context, params) => CheckoutWidget(
                 proref: params.getParam(
-                    'proref', ParamType.DocumentReference, false, 'Pro'),
+                    'proref', ParamType.DocumentReference, false, ['Pro']),
                 propersonref: params.getParam('propersonref',
-                    ParamType.DocumentReference, false, 'person'),
+                    ParamType.DocumentReference, false, ['person']),
                 reservehour: params.getParam('reservehour', ParamType.String),
                 reservemonthday:
                     params.getParam('reservemonthday', ParamType.String),
                 reservationref: params.getParam('reservationref',
-                    ParamType.DocumentReference, false, 'reservation'),
+                    ParamType.DocumentReference, false, ['reservation']),
+              ),
+            ),
+            FFRoute(
+              name: 'createPost',
+              path: 'createPost',
+              builder: (context, params) => CreatePostWidget(
+                postref: params.getParam(
+                    'postref', ParamType.DocumentReference, false, ['Post1']),
+                category: params.getParam('category', ParamType.String),
               ),
             ),
             FFRoute(
@@ -165,21 +175,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => ManagerPageHomeWidget(),
             ),
             FFRoute(
-              name: 'createPost',
-              path: 'createPost',
-              builder: (context, params) => CreatePostWidget(
-                postref: params.getParam(
-                    'postref', ParamType.DocumentReference, false, 'Post1'),
-                category: params.getParam('category', ParamType.String),
-              ),
-            ),
-            FFRoute(
               name: 'ManagerPage_post',
               path: 'managerPagePost',
               requireAuth: true,
               builder: (context, params) => ManagerPagePostWidget(
-                personlist: params.getParam<DocumentReference>(
-                    'personlist', ParamType.DocumentReference, true, 'person'),
+                personlist: params.getParam<DocumentReference>('personlist',
+                    ParamType.DocumentReference, true, ['person']),
               ),
             ),
             FFRoute(
@@ -187,7 +188,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'balanceHistory',
               builder: (context, params) => BalanceHistoryWidget(
                 userref: params.getParam(
-                    'userref', ParamType.DocumentReference, false, 'person'),
+                    'userref', ParamType.DocumentReference, false, ['person']),
               ),
             ),
             FFRoute(
@@ -195,12 +196,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'reserveCalendar',
               builder: (context, params) => ReserveCalendarWidget(
                 proref: params.getParam(
-                    'proref', ParamType.DocumentReference, false, 'Pro'),
+                    'proref', ParamType.DocumentReference, false, ['Pro']),
                 reservationref: params.getParam<DocumentReference>(
                     'reservationref',
                     ParamType.DocumentReference,
                     true,
-                    'reservation'),
+                    ['reservation']),
               ),
             ),
             FFRoute(
@@ -217,12 +218,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'postview',
               path: 'postview',
               asyncParams: {
-                'post': getDoc('Post1', Post1Record.serializer),
+                'post': getDoc(['Post1'], Post1Record.serializer),
               },
               builder: (context, params) => PostviewWidget(
                 post: params.getParam('post', ParamType.Document),
                 contentsref: params.getParam('contentsref',
-                    ParamType.DocumentReference, false, 'contents'),
+                    ParamType.DocumentReference, false, ['contents']),
               ),
             ),
             FFRoute(
@@ -235,14 +236,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'profileview',
               builder: (context, params) => ProfileviewWidget(
                 proref: params.getParam(
-                    'proref', ParamType.DocumentReference, false, 'Pro'),
+                    'proref', ParamType.DocumentReference, false, ['Pro']),
               ),
             ),
             FFRoute(
               name: 'wellbeingview',
               path: 'wellbeingview',
               asyncParams: {
-                'companyref': getDoc('company', CompanyRecord.serializer),
+                'companyref': getDoc(['company'], CompanyRecord.serializer),
               },
               builder: (context, params) => WellbeingviewWidget(
                 companyref: params.getParam('companyref', ParamType.Document),
@@ -252,16 +253,16 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'companyview',
               path: 'companyview',
               asyncParams: {
-                'companyref': getDoc('company', CompanyRecord.serializer),
+                'companyref': getDoc(['company'], CompanyRecord.serializer),
               },
               builder: (context, params) => CompanyviewWidget(
                 companyref: params.getParam('companyref', ParamType.Document),
               ),
             ),
             FFRoute(
-              name: 'ContentsCopy',
-              path: 'contentsCopy',
-              builder: (context, params) => ContentsCopyWidget(),
+              name: 'snsConfigure',
+              path: 'snsConfigure',
+              builder: (context, params) => SnsConfigureWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
         ).toRoute(appStateNotifier),
@@ -374,7 +375,7 @@ class FFParameters {
     String paramName,
     ParamType type, [
     bool isList = false,
-    String? collectionName,
+    List<String>? collectionNamePath,
   ]) {
     if (futureParamValues.containsKey(paramName)) {
       return futureParamValues[paramName];
@@ -388,7 +389,7 @@ class FFParameters {
       return param;
     }
     // Return serialized value.
-    return deserializeParam<T>(param, type, isList, collectionName);
+    return deserializeParam<T>(param, type, isList, collectionNamePath);
   }
 }
 

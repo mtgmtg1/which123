@@ -1,16 +1,16 @@
 {
   "indexes": [
     {
-      "collectionGroup": "Post1",
+      "collectionGroup": "feelset",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "ref",
+          "fieldPath": "userref",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "createTime",
-          "order": "DESCENDING"
+          "fieldPath": "createat",
+          "order": "ASCENDING"
         }
       ]
     },
